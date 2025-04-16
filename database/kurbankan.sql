@@ -35,8 +35,8 @@ CREATE TABLE `mosques` (
   `regency_code` varchar(10),
   `district_code` varchar(15),
   `village_code` varchar(20),
-  `created_at` timestamp,
-  `updated_at` timestamp
+  `created_at` timestamp DEFAULT (now()),
+  `updated_at` timestamp DEFAULT (now())
 );
 
 CREATE TABLE `participants` (
@@ -48,8 +48,8 @@ CREATE TABLE `participants` (
   `regency_code` varchar(10),
   `district_code` varchar(15),
   `village_code` varchar(20),
-  `created_at` timestamp,
-  `updated_at` timestamp
+  `created_at` timestamp DEFAULT (now()),
+  `updated_at` timestamp DEFAULT (now())
 );
 
 CREATE TABLE `users` (
@@ -57,8 +57,8 @@ CREATE TABLE `users` (
   `email` varchar(255) UNIQUE NOT NULL,
   `password` text NOT NULL,
   `role` ENUM ('admin', 'mosque', 'participant') NOT NULL DEFAULT 'participant',
-  `created_at` timestamp,
-  `updated_at` timestamp
+  `created_at` timestamp DEFAULT (now()),
+  `updated_at` timestamp DEFAULT (now())
 );
 
 CREATE TABLE `qurban_periods` (
@@ -67,8 +67,8 @@ CREATE TABLE `qurban_periods` (
   `start_date` date NOT NULL,
   `end_date` date NOT NULL,
   `description` text DEFAULT null,
-  `created_at` timestamp,
-  `updated_at` timestamp
+  `created_at` timestamp DEFAULT (now()),
+  `updated_at` timestamp DEFAULT (now())
 );
 
 CREATE TABLE `transactions` (
@@ -77,8 +77,8 @@ CREATE TABLE `transactions` (
   `mosque_id` int,
   `qurban_option_id` int,
   `is_full` boolean DEFAULT false,
-  `created_at` timestamp,
-  `updated_at` timestamp
+  `created_at` timestamp DEFAULT (now()),
+  `updated_at` timestamp DEFAULT (now())
 );
 
 CREATE TABLE `transaction_items` (
@@ -91,8 +91,8 @@ CREATE TABLE `transaction_items` (
   `external_id` text UNIQUE,
   `paid_at` timestamp DEFAULT null,
   `description` text DEFAULT null,
-  `created_at` timestamp,
-  `updated_at` timestamp
+  `created_at` timestamp DEFAULT (now()),
+  `updated_at` timestamp DEFAULT (now())
 );
 
 CREATE TABLE `qurban_options` (
@@ -102,8 +102,29 @@ CREATE TABLE `qurban_options` (
   `scheme_type` ENUM ('group', 'individual') NOT NULL,
   `price` decimal(12,2) NOT NULL,
   `slots` int DEFAULT 1,
-  `created_at` timestamp,
-  `updated_at` timestamp
+  `created_at` timestamp DEFAULT (now()),
+  `updated_at` timestamp DEFAULT (now())
+);
+
+CREATE TABLE `beneficiaries` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `mosque_id` int,
+  `name` text NOT NULL,
+  `address` text DEFAULT null,
+  `phone` varchar(20) DEFAULT null,
+  `created_at` timestamp DEFAULT (now()),
+  `updated_at` timestamp DEFAULT (now())
+);
+
+CREATE TABLE `qurban_distributions` (
+  `id` int PRIMARY KEY AUTO_INCREMENT,
+  `qurban_period_id` int,
+  `beneficiary_id` int,
+  `mosque_id` int,
+  `amount` decimal(12,2) NOT NULL,
+  `note` text DEFAULT null,
+  `created_at` timestamp DEFAULT (now()),
+  `updated_at` timestamp DEFAULT (now())
 );
 
 ALTER TABLE `regencies` ADD FOREIGN KEY (`province_code`) REFERENCES `provinces` (`code`);
@@ -143,3 +164,11 @@ ALTER TABLE `transaction_items` ADD FOREIGN KEY (`transaction_id`) REFERENCES `t
 ALTER TABLE `transaction_items` ADD FOREIGN KEY (`participant_id`) REFERENCES `participants` (`id`);
 
 ALTER TABLE `qurban_options` ADD FOREIGN KEY (`qurban_period_id`) REFERENCES `qurban_periods` (`id`);
+
+ALTER TABLE `beneficiaries` ADD FOREIGN KEY (`mosque_id`) REFERENCES `mosques` (`id`);
+
+ALTER TABLE `qurban_distributions` ADD FOREIGN KEY (`qurban_period_id`) REFERENCES `qurban_periods` (`id`);
+
+ALTER TABLE `qurban_distributions` ADD FOREIGN KEY (`beneficiary_id`) REFERENCES `beneficiaries` (`id`);
+
+ALTER TABLE `qurban_distributions` ADD FOREIGN KEY (`mosque_id`) REFERENCES `mosques` (`id`);
