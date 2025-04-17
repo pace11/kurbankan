@@ -1,3 +1,7 @@
+CREATE DATABASE IF NOT EXISTS kurbankan;
+
+USE kurbankan;
+
 CREATE TABLE `provinces` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `code` varchar(10) UNIQUE NOT NULL,
@@ -58,7 +62,7 @@ CREATE TABLE `users` (
   `id` int PRIMARY KEY AUTO_INCREMENT,
   `email` varchar(255) UNIQUE NOT NULL,
   `password` text NOT NULL,
-  `role` ENUM ('admin', 'mosque', 'participant') NOT NULL DEFAULT 'participant',
+  `role` ENUM ('admin', 'mosque_member', 'user_member') NOT NULL DEFAULT 'user_member',
   `created_at` timestamp DEFAULT (now()),
   `updated_at` timestamp DEFAULT (now())
 );

@@ -14,9 +14,9 @@ const (
 
 type User struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
-	Email     string    `json:"email" gorm:"unique;not null"`
+	Email     string    `json:"email" gorm:"unique;not null" binding:"required"`
 	Password  string    `json:"password" gorm:"type:text;not null"`
-	Role      UserRole  `json:"role" gorm:"type:enum('admin','mosque_member','user_member');default:'user_member';not null"`
+	Role      UserRole  `json:"role" gorm:"type:enum('admin','mosque_member','user_member');default:'user_member';not null" binding:"required"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
