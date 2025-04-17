@@ -1,4 +1,4 @@
-package model
+package models
 
 type Province struct {
 	ID   uint   `json:"id" gorm:"primaryKey"`

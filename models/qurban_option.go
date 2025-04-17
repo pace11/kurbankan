@@ -1,6 +1,10 @@
-package model
+package models
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type QurbanAnimalType string
 type QurbanSchemeType string
@@ -21,6 +25,7 @@ type QurbanOption struct {
 	Slots          int              `json:"slots" gorm:"default:1"`
 	CreatedAt      time.Time        `json:"created_at"`
 	UpdatedAt      time.Time        `json:"updated_at"`
+	DeletedAt      gorm.DeletedAt   `json:"deleted_at" gorm:"index"`
 
 	QurbanPeriod *QurbanPeriod `json:"qurban_period" gorm:"foreignKey:QurbanPeriodID"`
 }

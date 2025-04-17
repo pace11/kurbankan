@@ -1,4 +1,4 @@
-package model
+package models
 
 type District struct {
 	ID          uint   `json:"id" gorm:"primaryKey"`

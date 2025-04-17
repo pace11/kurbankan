@@ -1,4 +1,4 @@
-package model
+package models
 
 type Regency struct {
 	ID           uint   `json:"id" gorm:"primaryKey"`

@@ -1,6 +1,8 @@
-package model
+package models
 
-import "time"
+import (
+	"time"
+)
 
 type UserRole string
 

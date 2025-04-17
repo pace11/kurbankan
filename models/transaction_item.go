@@ -1,6 +1,10 @@
-package model
+package models
 
-import "time"
+import (
+	"time"
+
+	"gorm.io/gorm"
+)
 
 type TransactionStatus string
 type PaymentType string
@@ -24,6 +28,7 @@ type TransactionItem struct {
 	PaidAt        *time.Time        `json:"paid_at"`
 	CreatedAt     time.Time         `json:"created_at"`
 	UpdatedAt     time.Time         `json:"updated_at"`
+	DeletedAt     gorm.DeletedAt    `json:"deleted_at" gorm:"index"`
 
 	Transaction *Transaction `json:"transaction" gorm:"foreignKey:TransactionID"`
 	Participant *Participant `json:"participant" gorm:"foreignKey:ParticipantID"`

@@ -36,7 +36,8 @@ CREATE TABLE `mosques` (
   `district_code` varchar(15),
   `village_code` varchar(20),
   `created_at` timestamp DEFAULT (now()),
-  `updated_at` timestamp DEFAULT (now())
+  `updated_at` timestamp DEFAULT (now()),
+  `deleted_at` timestamp DEFAULT null
 );
 
 CREATE TABLE `participants` (
@@ -49,7 +50,8 @@ CREATE TABLE `participants` (
   `district_code` varchar(15),
   `village_code` varchar(20),
   `created_at` timestamp DEFAULT (now()),
-  `updated_at` timestamp DEFAULT (now())
+  `updated_at` timestamp DEFAULT (now()),
+  `deleted_at` timestamp DEFAULT null
 );
 
 CREATE TABLE `users` (
@@ -68,7 +70,8 @@ CREATE TABLE `qurban_periods` (
   `end_date` date NOT NULL,
   `description` text DEFAULT null,
   `created_at` timestamp DEFAULT (now()),
-  `updated_at` timestamp DEFAULT (now())
+  `updated_at` timestamp DEFAULT (now()),
+  `deleted_at` timestamp DEFAULT null
 );
 
 CREATE TABLE `transactions` (
@@ -78,7 +81,8 @@ CREATE TABLE `transactions` (
   `qurban_option_id` int,
   `is_full` boolean DEFAULT false,
   `created_at` timestamp DEFAULT (now()),
-  `updated_at` timestamp DEFAULT (now())
+  `updated_at` timestamp DEFAULT (now()),
+  `deleted_at` timestamp DEFAULT null
 );
 
 CREATE TABLE `transaction_items` (
@@ -88,11 +92,12 @@ CREATE TABLE `transaction_items` (
   `amount` decimal(12,2) NOT NULL,
   `status` ENUM ('pending', 'paid', 'cancelled') NOT NULL DEFAULT 'pending',
   `payment_type` ENUM ('VA') NOT NULL DEFAULT 'VA',
-  `external_id` text UNIQUE,
+  `external_id` varchar(255) UNIQUE,
   `paid_at` timestamp DEFAULT null,
   `description` text DEFAULT null,
   `created_at` timestamp DEFAULT (now()),
-  `updated_at` timestamp DEFAULT (now())
+  `updated_at` timestamp DEFAULT (now()),
+  `deleted_at` timestamp DEFAULT null
 );
 
 CREATE TABLE `qurban_options` (
@@ -103,7 +108,8 @@ CREATE TABLE `qurban_options` (
   `price` decimal(12,2) NOT NULL,
   `slots` int DEFAULT 1,
   `created_at` timestamp DEFAULT (now()),
-  `updated_at` timestamp DEFAULT (now())
+  `updated_at` timestamp DEFAULT (now()),
+  `deleted_at` timestamp DEFAULT null
 );
 
 CREATE TABLE `beneficiaries` (
@@ -113,7 +119,8 @@ CREATE TABLE `beneficiaries` (
   `address` text DEFAULT null,
   `phone` varchar(20) DEFAULT null,
   `created_at` timestamp DEFAULT (now()),
-  `updated_at` timestamp DEFAULT (now())
+  `updated_at` timestamp DEFAULT (now()),
+  `deleted_at` timestamp DEFAULT null
 );
 
 CREATE TABLE `qurban_distributions` (
@@ -124,7 +131,8 @@ CREATE TABLE `qurban_distributions` (
   `amount` decimal(12,2) NOT NULL,
   `note` text DEFAULT null,
   `created_at` timestamp DEFAULT (now()),
-  `updated_at` timestamp DEFAULT (now())
+  `updated_at` timestamp DEFAULT (now()),
+  `deleted_at` timestamp DEFAULT null
 );
 
 ALTER TABLE `regencies` ADD FOREIGN KEY (`province_code`) REFERENCES `provinces` (`code`);
