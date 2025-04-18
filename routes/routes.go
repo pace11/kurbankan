@@ -2,6 +2,7 @@ package routes
 
 import (
 	"kurbankan/controllers"
+	"kurbankan/middlewares"
 	"kurbankan/repository"
 
 	"github.com/gin-gonic/gin"
@@ -11,11 +12,14 @@ func SetupRoutes(r *gin.Engine) {
 	QurbanPeriodController := controllers.NewQurbanPeriodController(repository.NewQurbanPeriodRepository())
 	UserController := controllers.NewUserController(repository.NewUserRepository())
 
-	api := r.Group("/api")
 	// auth
-	auth := api.Group("/auth")
+	auth := r.Group("/auth")
 	auth.POST("/register", controllers.RegisterParticipant)
 	auth.POST("/register/mosque", controllers.RegisterMosque)
+	auth.POST("/login", controllers.Login)
+
+	api := r.Group("/api")
+	api.Use(middlewares.JWTAuthMiddleware())
 
 	// qurban-periods endpoint
 	api.GET("/qurban-periods", QurbanPeriodController.GetQurbanPeriods)
