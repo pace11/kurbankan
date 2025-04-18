@@ -12,6 +12,7 @@ func SetupRoutes(r *gin.Engine) {
 	QurbanPeriodController := controllers.NewQurbanPeriodController(repository.NewQurbanPeriodRepository())
 	UserController := controllers.NewUserController(repository.NewUserRepository())
 	MosqueController := controllers.NewMosqueRepository(repository.NewMosqueRepository())
+	ParticipantController := controllers.NewParticipantRepository(repository.NewParticipantRepository())
 
 	// auth
 	auth := r.Group("/auth")
@@ -37,5 +38,9 @@ func SetupRoutes(r *gin.Engine) {
 	// mosques
 	api.GET("/mosques", MosqueController.GetMosques)
 	api.GET("/mosques/:id", MosqueController.GetMosque)
+
+	// participants
+	api.GET("/participants", ParticipantController.GetParticipants)
+	api.GET("/participants/:id", ParticipantController.GetParticipant)
 
 }

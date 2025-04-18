@@ -2,16 +2,34 @@ package models
 
 import "time"
 
-type MosqueResponse struct {
-	ID        uint      `json:"id" gorm:"primaryKey"`
-	Name      string    `json:"name" gorm:"type:text;not null"`
-	Address   *string   `json:"address"`
-	Photos    *string   `json:"photos"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+type UserResponse struct {
+	ID    uint   `json:"id"`
+	Email string `json:"email"`
+	Role  string `json:"role"`
+}
 
-	Province *Province `json:"province" gorm:"foreignKey:ProvinceCode;references:Code"`
-	Regency  *Regency  `json:"regency" gorm:"foreignKey:RegencyCode;references:Code"`
-	District *District `json:"district" gorm:"foreignKey:DistrictCode;references:Code"`
-	Village  *Village  `json:"village" gorm:"foreignKey:VillageCode;references:Code"`
+type MosqueResponse struct {
+	ID        uint          `json:"id"`
+	Name      string        `json:"name"`
+	Address   *string       `json:"address"`
+	Photos    *string       `json:"photos"`
+	Province  *Province     `json:"province"`
+	Regency   *Regency      `json:"regency"`
+	District  *District     `json:"district"`
+	Village   *Village      `json:"village"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
+	User      *UserResponse `json:"user"`
+}
+type ParticipantResponse struct {
+	ID        uint          `json:"id"`
+	Name      string        `json:"name"`
+	Address   *string       `json:"address"`
+	Province  *Province     `json:"province"`
+	Regency   *Regency      `json:"regency"`
+	District  *District     `json:"district"`
+	Village   *Village      `json:"village"`
+	CreatedAt time.Time     `json:"created_at"`
+	UpdatedAt time.Time     `json:"updated_at"`
+	User      *UserResponse `json:"user"`
 }
