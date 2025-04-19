@@ -44,3 +44,16 @@ func ValidationErrorResponse(c *gin.Context, errors map[string]string) {
 		"data":    errors,
 	})
 }
+
+func PaginatedResponse(c *gin.Context, data interface{}, total int64, page int, limit int) {
+	c.JSON(http.StatusOK, gin.H{
+		"status":  "success",
+		"message": "Get data success",
+		"data":    data,
+		"meta": gin.H{
+			"page":  page,
+			"limit": limit,
+			"total": total,
+		},
+	})
+}

@@ -9,10 +9,17 @@ import (
 )
 
 func SetupRoutes(r *gin.Engine) {
+
+	// controllers
 	QurbanPeriodController := controllers.NewQurbanPeriodController(repository.NewQurbanPeriodRepository())
+	QurbanOptionController := controllers.NewQurbanOptionController(repository.NewQurbanOptionRepository())
 	UserController := controllers.NewUserController(repository.NewUserRepository())
 	MosqueController := controllers.NewMosqueRepository(repository.NewMosqueRepository())
 	ParticipantController := controllers.NewParticipantRepository(repository.NewParticipantRepository())
+	ProvinceController := controllers.NewProvinceRepository(repository.NewProvinceRepository())
+	RegencyController := controllers.NewRegencyRepository(repository.NewRegencyRepository())
+	DistrictController := controllers.NewDistrictRepository(repository.NewDistrictRepository())
+	VillageController := controllers.NewVillageRepository(repository.NewVillageRepository())
 
 	// auth
 	auth := r.Group("/auth")
@@ -23,11 +30,17 @@ func SetupRoutes(r *gin.Engine) {
 	api := r.Group("/api")
 	api.Use(middlewares.JWTAuthMiddleware())
 
-	// qurban-periods endpoint
+	// qurban-periods
 	api.GET("/qurban-periods", QurbanPeriodController.GetQurbanPeriods)
 	api.POST("/qurban-periods", QurbanPeriodController.CreateQurbanPeriod)
 	api.PATCH("/qurban-periods/:id", QurbanPeriodController.UpdateQurbanPeriod)
 	api.DELETE("/qurban-periods/:id", QurbanPeriodController.DeleteQurbanPeriod)
+
+	// qurban-options
+	api.GET("/qurban-options", QurbanOptionController.GetQurbanOptions)
+	api.POST("/qurban-options", QurbanOptionController.CreateQurbanOption)
+	api.PATCH("/qurban-options/:id", QurbanOptionController.UpdateQurbanOption)
+	api.DELETE("/qurban-options/:id", QurbanOptionController.DeleteQurbanPeriod)
 
 	// users
 	api.GET("/users", UserController.GetUsers)
@@ -42,5 +55,11 @@ func SetupRoutes(r *gin.Engine) {
 	// participants
 	api.GET("/participants", ParticipantController.GetParticipants)
 	api.GET("/participants/:id", ParticipantController.GetParticipant)
+
+	// area
+	api.GET("/provinces", ProvinceController.GetProvinces)
+	api.GET("/regencies", RegencyController.GetRegencies)
+	api.GET("/districts", DistrictController.GetDistricts)
+	api.GET("/villages", VillageController.GetVillages)
 
 }
