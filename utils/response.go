@@ -6,7 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func SuccessResponse(c *gin.Context, data interface{}) {
+func SuccessResponse(c *gin.Context, data any) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": "Get data success",
@@ -14,7 +14,7 @@ func SuccessResponse(c *gin.Context, data interface{}) {
 	})
 }
 
-func CreatedResponse(c *gin.Context, data interface{}) {
+func CreatedResponse(c *gin.Context, data any) {
 	c.JSON(http.StatusCreated, gin.H{
 		"status":  "success",
 		"message": "Data created",
@@ -45,15 +45,17 @@ func ValidationErrorResponse(c *gin.Context, errors map[string]string) {
 	})
 }
 
-func PaginatedResponse(c *gin.Context, data interface{}, total int64, page int, limit int) {
+func PaginatedResponse(c *gin.Context, data any, total int64, page int, limit int) {
+	totalPages := int((total + int64(limit) - 1) / int64(limit))
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "success",
 		"message": "Get data success",
 		"data":    data,
 		"meta": gin.H{
-			"page":  page,
-			"limit": limit,
-			"total": total,
+			"page":        page,
+			"limit":       limit,
+			"total":       total,
+			"total_pages": totalPages,
 		},
 	})
 }

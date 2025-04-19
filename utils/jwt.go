@@ -22,7 +22,7 @@ func GenerateToken(userID uint, email string, role string) (string, error) {
 }
 
 func ParseToken(tokenStr string) (*jwt.Token, jwt.MapClaims, error) {
-	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (interface{}, error) {
+	token, err := jwt.Parse(tokenStr, func(token *jwt.Token) (any, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}

@@ -2,7 +2,7 @@ package utils
 
 import "gorm.io/gorm"
 
-func FilterByParams(db *gorm.DB, filters map[string]interface{}) *gorm.DB {
+func FilterByParams(db *gorm.DB, filters map[string]any) *gorm.DB {
 	for key, val := range filters {
 		if key == "name" {
 			if str, ok := val.(string); ok && str != "" {

@@ -11,7 +11,7 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func BindAndValidate(c *gin.Context, form interface{}) error {
+func BindAndValidate(c *gin.Context, form any) error {
 	if err := c.ShouldBindJSON(form); err != nil {
 		var ve validator.ValidationErrors
 		if errors.As(err, &ve) {
