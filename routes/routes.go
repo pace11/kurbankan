@@ -20,6 +20,7 @@ func SetupRoutes(r *gin.Engine) {
 	RegencyController := controllers.NewRegencyRepository(repository.NewRegencyRepository())
 	DistrictController := controllers.NewDistrictRepository(repository.NewDistrictRepository())
 	VillageController := controllers.NewVillageRepository(repository.NewVillageRepository())
+	BeneficiaryController := controllers.NewBeneficiaryController(repository.NewBeneficiaryRepository())
 
 	// auth
 	auth := r.Group("/auth")
@@ -68,4 +69,10 @@ func SetupRoutes(r *gin.Engine) {
 	api.GET("/participants/:id", ParticipantController.GetParticipant)
 	api.PATCH("/participants/:id", ParticipantController.UpdateParticipant)
 	api.DELETE("/participants/:id", ParticipantController.DeleteParticipant)
+
+	// users
+	api.GET("/beneficiaries", BeneficiaryController.GetBeneficiaries)
+	api.POST("/beneficiary", BeneficiaryController.CreateBeneficiary)
+	api.PATCH("/beneficiary/:id", BeneficiaryController.UpdateBeneficiary)
+	api.DELETE("/beneficiary/:id", BeneficiaryController.DeleteBeneficiary)
 }

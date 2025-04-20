@@ -48,6 +48,7 @@ func (r *mosqueRepository) Index(c *gin.Context, filters map[string]any) ([]mode
 			UpdatedAt: m.UpdatedAt,
 		})
 	}
+
 	return response, total, page, limit
 }
 

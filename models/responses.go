@@ -1,6 +1,8 @@
 package models
 
-import "time"
+import (
+	"time"
+)
 
 type UserResponse struct {
 	ID    uint   `json:"id"`
@@ -32,4 +34,14 @@ type ParticipantResponse struct {
 	CreatedAt time.Time     `json:"created_at"`
 	UpdatedAt time.Time     `json:"updated_at"`
 	User      *UserResponse `json:"user"`
+}
+
+type BeneficiaryResponse struct {
+	ID        uint      `json:"id"`
+	MosqueID  uint      `json:"mosque_id"`
+	Name      string    `json:"name"`
+	Address   *string   `json:"address"`
+	Phone     *string   `json:"phone"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
 }
