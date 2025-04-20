@@ -75,4 +75,8 @@ func SetupRoutes(r *gin.Engine) {
 	api.POST("/beneficiary", BeneficiaryController.CreateBeneficiary)
 	api.PATCH("/beneficiary/:id", BeneficiaryController.UpdateBeneficiary)
 	api.DELETE("/beneficiary/:id", BeneficiaryController.DeleteBeneficiary)
+
+	// transactions
+	api.POST("/transaction", controllers.CreateTransaction)
+	api.GET("/transaction/refresh/:external_id", controllers.RefreshTransactionStatus)
 }
