@@ -26,6 +26,7 @@ func (ctl *MosqueController) GetMosques(c *gin.Context) {
 		"district_code": c.Query("district_code"),
 		"village_code":  c.Query("village_code"),
 	}
+
 	data, total, page, limit := ctl.Repo.Index(c, filters)
 	utils.PaginatedResponse(c, data, total, page, limit)
 }
@@ -44,6 +45,17 @@ func (ctl *MosqueController) GetMosque(c *gin.Context) {
 		return
 	}
 
+	utils.SuccessResponse(c, mosque)
+}
+
+func (ctl *MosqueController) CreateMosque(c *gin.Context) {
+	var mosque models.UserCreateDTO
+
+	if utils.BindAndValidate(c, &mosque) != nil {
+		return
+	}
+
+	ctl.Repo.Save(&mosque)
 	utils.SuccessResponse(c, mosque)
 }
 

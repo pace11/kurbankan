@@ -11,6 +11,7 @@ import (
 type MosqueRepository interface {
 	Index(c *gin.Context, filters map[string]any) ([]models.MosqueResponse, int64, int, int)
 	Show(id uint) (*models.MosqueResponse, error)
+	Save(mosque *models.UserCreateDTO) bool
 	Update(id uint, mosque *models.UserUpdateDTO) bool
 	Delete(id uint) bool
 }
@@ -74,6 +75,44 @@ func (r *mosqueRepository) Show(id uint) (*models.MosqueResponse, error) {
 	return response, nil
 }
 
+func (r *mosqueRepository) Save(mosque *models.UserCreateDTO) bool {
+	tx := config.DB.Begin()
+
+	hashed, err := utils.HashPassword(mosque.Password)
+	if err != nil {
+		tx.Rollback()
+		return false
+	}
+
+	userToCreate := models.User{
+		Email:    mosque.Email,
+		Password: hashed,
+		Role:     models.MosqueMember,
+	}
+
+	if err := tx.Save(&userToCreate).Error; err != nil {
+		tx.Rollback()
+		return false
+	}
+
+	mosqueCreate := models.Mosque{
+		UserID:       userToCreate.ID,
+		Name:         mosque.Name,
+		Address:      mosque.Address,
+		ProvinceCode: mosque.ProvinceCode,
+		RegencyCode:  mosque.RegencyCode,
+		DistrictCode: mosque.DistrictCode,
+		VillageCode:  mosque.VillageCode,
+	}
+
+	if err := tx.Save(&mosqueCreate).Error; err != nil {
+		tx.Rollback()
+		return false
+	}
+
+	return tx.Commit().Error == nil
+}
+
 func (r *mosqueRepository) Update(id uint, mosque *models.UserUpdateDTO) bool {
 	var existing models.Mosque
 	var userToUpdate models.User
@@ -83,7 +122,6 @@ func (r *mosqueRepository) Update(id uint, mosque *models.UserUpdateDTO) bool {
 	}
 
 	tx := config.DB.Begin()
-	mosque.Password = existing.User.Password
 
 	if mosque.Password != "" {
 		hashed, err := utils.HashPassword(mosque.Password)
@@ -92,6 +130,8 @@ func (r *mosqueRepository) Update(id uint, mosque *models.UserUpdateDTO) bool {
 			return false
 		}
 		mosque.Password = hashed
+	} else {
+		mosque.Password = existing.User.Password
 	}
 
 	if err := tx.First(&userToUpdate, existing.UserID).Error; err != nil {
