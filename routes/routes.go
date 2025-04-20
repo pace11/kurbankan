@@ -28,6 +28,14 @@ func SetupRoutes(r *gin.Engine) {
 	auth.POST("/login", controllers.Login)
 
 	api := r.Group("/api")
+
+	// area
+	area := api.Group("/area")
+	area.GET("/provinces", ProvinceController.GetProvinces)
+	area.GET("/regencies", RegencyController.GetRegencies)
+	area.GET("/districts", DistrictController.GetDistricts)
+	area.GET("/villages", VillageController.GetVillages)
+
 	api.Use(middlewares.JWTAuthMiddleware())
 
 	// qurban-periods
@@ -51,15 +59,11 @@ func SetupRoutes(r *gin.Engine) {
 	// mosques
 	api.GET("/mosques", MosqueController.GetMosques)
 	api.GET("/mosques/:id", MosqueController.GetMosque)
+	api.PATCH("/mosques/:id", MosqueController.UpdateMosque)
+	api.DELETE("/mosques/:id", MosqueController.DeleteMosque)
 
 	// participants
 	api.GET("/participants", ParticipantController.GetParticipants)
 	api.GET("/participants/:id", ParticipantController.GetParticipant)
-
-	// area
-	api.GET("/provinces", ProvinceController.GetProvinces)
-	api.GET("/regencies", RegencyController.GetRegencies)
-	api.GET("/districts", DistrictController.GetDistricts)
-	api.GET("/villages", VillageController.GetVillages)
 
 }

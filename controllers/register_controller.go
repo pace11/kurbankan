@@ -9,19 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type RegisterParticipantDTO struct {
-	Email        string  `json:"email" binding:"required,email"`
-	Password     string  `json:"password" binding:"required"`
-	Name         string  `json:"name" binding:"required"`
-	Address      *string `json:"address"`
-	ProvinceCode string  `json:"province_code" binding:"required"`
-	RegencyCode  string  `json:"regency_code" binding:"required"`
-	DistrictCode string  `json:"district_code" binding:"required"`
-	VillageCode  string  `json:"village_code" binding:"required"`
-}
-
 func RegisterParticipant(c *gin.Context) {
-	var payload RegisterParticipantDTO
+	var payload models.UserCreateDTO
 	if utils.BindAndValidate(c, &payload) != nil {
 		return
 	}

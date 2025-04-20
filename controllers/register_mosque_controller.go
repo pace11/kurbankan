@@ -9,19 +9,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type RegisterMosqueDTO struct {
-	Email        string  `json:"email" binding:"required,email"`
-	Password     string  `json:"password" binding:"required"`
-	Name         string  `json:"name" binding:"required"`
-	Address      *string `json:"address"`
-	ProvinceCode string  `json:"province_code" binding:"required"`
-	RegencyCode  string  `json:"regency_code" binding:"required"`
-	DistrictCode string  `json:"district_code" binding:"required"`
-	VillageCode  string  `json:"village_code" binding:"required"`
-}
-
 func RegisterMosque(c *gin.Context) {
-	var payload RegisterMosqueDTO
+	var payload models.UserCreateDTO
 	if utils.BindAndValidate(c, &payload) != nil {
 		return
 	}
@@ -38,7 +27,7 @@ func RegisterMosque(c *gin.Context) {
 	user := models.User{
 		Email:    payload.Email,
 		Password: hashed,
-		Role:     models.UserMember,
+		Role:     models.MosqueMember,
 	}
 
 	if err := tx.Create(&user).Error; err != nil {
@@ -51,6 +40,7 @@ func RegisterMosque(c *gin.Context) {
 		UserID:       user.ID,
 		Name:         payload.Name,
 		Address:      payload.Address,
+		Photos:       payload.Photos,
 		ProvinceCode: payload.ProvinceCode,
 		RegencyCode:  payload.RegencyCode,
 		DistrictCode: payload.DistrictCode,
