@@ -69,12 +69,13 @@ func SetupRoutes(r *gin.Engine) {
 
 	// participants
 	api.GET("/participants", ParticipantController.GetParticipants)
-	api.GET("/participants/:id", ParticipantController.GetParticipant)
-	api.PATCH("/participants/:id", ParticipantController.UpdateParticipant)
-	api.DELETE("/participants/:id", ParticipantController.DeleteParticipant)
+	api.GET("/participant/:id", ParticipantController.GetParticipant)
+	api.PATCH("/participant/:id", ParticipantController.UpdateParticipant)
+	api.DELETE("/participant/:id", ParticipantController.DeleteParticipant)
 
-	// users
+	// beneficiaries
 	api.GET("/beneficiaries", BeneficiaryController.GetBeneficiaries)
+	api.GET("/beneficiary/:id", BeneficiaryController.GetBeneficiary)
 	api.POST("/beneficiary", BeneficiaryController.CreateBeneficiary)
 	api.PATCH("/beneficiary/:id", BeneficiaryController.UpdateBeneficiary)
 	api.DELETE("/beneficiary/:id", BeneficiaryController.DeleteBeneficiary)

@@ -10,11 +10,11 @@ import (
 )
 
 type MosqueRepository interface {
-	Index(c *gin.Context, filters map[string]any) ([]models.MosqueResponse, int, any, any, int64, int, int)
-	Show(id uint) (*models.MosqueResponse, error)
-	Save(mosque *models.UserCreateDTO) bool
-	Update(id uint, mosque *models.UserUpdateDTO) bool
-	Delete(id uint) bool
+	Index(c *gin.Context, filters map[string]any) ([]models.MosqueResponse, int, any, int64, int, int)
+	Show(id uint) (*models.MosqueResponse, int, string, map[string]string)
+	Save(mosque *models.UserCreateDTO) (any, int, string, map[string]string)
+	Update(id uint, mosque *models.UserUpdateDTO) (any, int, string, map[string]string)
+	Delete(id uint) (any, int, string, map[string]string)
 }
 
 type mosqueRepository struct{}
@@ -23,7 +23,7 @@ func NewMosqueRepository() MosqueRepository {
 	return &mosqueRepository{}
 }
 
-func (r *mosqueRepository) Index(c *gin.Context, filters map[string]any) ([]models.MosqueResponse, int, any, any, int64, int, int) {
+func (r *mosqueRepository) Index(c *gin.Context, filters map[string]any) ([]models.MosqueResponse, int, any, int64, int, int) {
 	var mosques []models.Mosque
 	var total int64
 
@@ -50,15 +50,15 @@ func (r *mosqueRepository) Index(c *gin.Context, filters map[string]any) ([]mode
 		})
 	}
 
-	return response, http.StatusOK, "mosque", "get", total, page, limit
+	return response, http.StatusOK, "mosque", total, page, limit
 }
 
-func (r *mosqueRepository) Show(id uint) (*models.MosqueResponse, error) {
+func (r *mosqueRepository) Show(id uint) (*models.MosqueResponse, int, string, map[string]string) {
 	var mosque models.Mosque
 	err := config.DB.Preload("Province").Preload("Regency").Preload("District").Preload("Village").Preload("User").Where("id = ?", id).First(&mosque).Error
 
 	if err != nil {
-		return nil, err
+		return nil, http.StatusInternalServerError, "mosque", nil
 	}
 
 	response := &models.MosqueResponse{
@@ -74,16 +74,16 @@ func (r *mosqueRepository) Show(id uint) (*models.MosqueResponse, error) {
 		CreatedAt: mosque.CreatedAt,
 		UpdatedAt: mosque.UpdatedAt,
 	}
-	return response, nil
+	return response, http.StatusOK, "mosque", nil
 }
 
-func (r *mosqueRepository) Save(mosque *models.UserCreateDTO) bool {
+func (r *mosqueRepository) Save(mosque *models.UserCreateDTO) (any, int, string, map[string]string) {
 	tx := config.DB.Begin()
 
 	hashed, err := utils.HashPassword(mosque.Password)
 	if err != nil {
 		tx.Rollback()
-		return false
+		return nil, http.StatusInternalServerError, "mosque", nil
 	}
 
 	userToCreate := models.User{
@@ -94,7 +94,7 @@ func (r *mosqueRepository) Save(mosque *models.UserCreateDTO) bool {
 
 	if err := tx.Save(&userToCreate).Error; err != nil {
 		tx.Rollback()
-		return false
+		return nil, http.StatusInternalServerError, "user mosque", nil
 	}
 
 	mosqueCreate := models.Mosque{
@@ -109,18 +109,18 @@ func (r *mosqueRepository) Save(mosque *models.UserCreateDTO) bool {
 
 	if err := tx.Save(&mosqueCreate).Error; err != nil {
 		tx.Rollback()
-		return false
+		return nil, http.StatusInternalServerError, "mosque", nil
 	}
 
-	return tx.Commit().Error == nil
+	return mosque, http.StatusCreated, "mosque", nil
 }
 
-func (r *mosqueRepository) Update(id uint, mosque *models.UserUpdateDTO) bool {
+func (r *mosqueRepository) Update(id uint, mosque *models.UserUpdateDTO) (any, int, string, map[string]string) {
 	var existing models.Mosque
 	var userToUpdate models.User
 
 	if err := config.DB.Preload("User").First(&existing, id).Error; err != nil {
-		return false
+		return nil, http.StatusNotFound, "mosque", nil
 	}
 
 	tx := config.DB.Begin()
@@ -129,7 +129,7 @@ func (r *mosqueRepository) Update(id uint, mosque *models.UserUpdateDTO) bool {
 		hashed, err := utils.HashPassword(mosque.Password)
 		if err != nil {
 			tx.Rollback()
-			return false
+			return nil, http.StatusInternalServerError, "mosque", nil
 		}
 		mosque.Password = hashed
 	} else {
@@ -138,7 +138,7 @@ func (r *mosqueRepository) Update(id uint, mosque *models.UserUpdateDTO) bool {
 
 	if err := tx.First(&userToUpdate, existing.UserID).Error; err != nil {
 		tx.Rollback()
-		return false
+		return nil, http.StatusInternalServerError, "user mosque", nil
 	}
 
 	userToUpdate.Email = mosque.Email
@@ -147,7 +147,7 @@ func (r *mosqueRepository) Update(id uint, mosque *models.UserUpdateDTO) bool {
 
 	if err := tx.Save(&userToUpdate).Error; err != nil {
 		tx.Rollback()
-		return false
+		return nil, http.StatusInternalServerError, "mosque", nil
 	}
 
 	existing.Name = mosque.Name
@@ -160,13 +160,22 @@ func (r *mosqueRepository) Update(id uint, mosque *models.UserUpdateDTO) bool {
 
 	if err := tx.Save(&existing).Error; err != nil {
 		tx.Rollback()
-		return false
+		return nil, http.StatusInternalServerError, "mosque", nil
 	}
 
-	return tx.Commit().Error == nil
+	return mosque, http.StatusOK, "mosque", nil
 }
 
-func (r *mosqueRepository) Delete(id uint) bool {
+func (r *mosqueRepository) Delete(id uint) (any, int, string, map[string]string) {
 	result := config.DB.Delete(&models.Mosque{}, id)
-	return result.RowsAffected > 0
+
+	if result.Error != nil {
+		return nil, http.StatusInternalServerError, "mosque", nil
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, http.StatusNotFound, "mosque", nil
+	}
+
+	return nil, http.StatusOK, "mosque", nil
 }

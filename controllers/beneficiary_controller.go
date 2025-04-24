@@ -23,8 +23,21 @@ func (ctl *BeneficiaryController) GetBeneficiaries(c *gin.Context) {
 		"name": c.Query("name"),
 	}
 
-	data, code, entity, action, total, page, limit := ctl.Repo.Index(c, filters)
-	utils.PaginatedResponse(c, data, code, entity, action, total, page, limit)
+	data, code, entity, total, page, limit := ctl.Repo.Index(c, filters)
+	utils.PaginatedResponse(c, data, code, entity, c.Request.Method, total, page, limit)
+}
+
+func (ctl *BeneficiaryController) GetBeneficiary(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+
+	if err != nil {
+		utils.HttpResponse(c, nil, http.StatusBadRequest, "Invalid ID", c.Request.Method, nil)
+		return
+	}
+
+	data, code, entity, errors := ctl.Repo.Show(uint(id))
+	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
 }
 
 func (ctl *BeneficiaryController) CreateBeneficiary(c *gin.Context) {
@@ -34,8 +47,8 @@ func (ctl *BeneficiaryController) CreateBeneficiary(c *gin.Context) {
 		return
 	}
 
-	ctl.Repo.Save(&beneficiary)
-	utils.SuccessResponse(c, beneficiary)
+	data, code, entity, errors := ctl.Repo.Save(&beneficiary)
+	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
 }
 
 func (ctl *BeneficiaryController) UpdateBeneficiary(c *gin.Context) {
@@ -46,18 +59,12 @@ func (ctl *BeneficiaryController) UpdateBeneficiary(c *gin.Context) {
 		return
 	}
 
-	data, code, entity, action, errors := ctl.Repo.Update(uint(id), &beneficiary)
-	utils.HttpResponse(c, data, code, entity, action, errors)
+	data, code, entity, errors := ctl.Repo.Update(uint(id), &beneficiary)
+	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
 }
 
 func (ctl *BeneficiaryController) DeleteBeneficiary(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	deleted := ctl.Repo.Delete(uint(id))
-
-	if !deleted {
-		utils.ErrorResponse(c, http.StatusNotFound, "Data not found")
-		return
-	}
-
-	utils.DeleteResponse(c)
+	data, code, entity, errors := ctl.Repo.Delete(uint(id))
+	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
 }

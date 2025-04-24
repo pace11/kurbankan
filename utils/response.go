@@ -7,10 +7,33 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func HttpResponse(c *gin.Context, data any, code int, entity any, action any, errors map[string]string) {
+func StatusMessage(code int, method string, entity any) string {
+	messages := map[int]string{
+		http.StatusBadRequest:          "Validation error",
+		http.StatusCreated:             "Successfully created %v",
+		http.StatusNotFound:            "%v not found",
+		http.StatusInternalServerError: "Internal server error while processing %v",
+	}
+
+	methodMessages := map[string]string{
+		"GET":    "Successfully fetched %v data",
+		"PATCH":  "Successfully updated %v data",
+		"DELETE": "Successfully deleted %v data",
+	}
+
+	template, ok := messages[code]
+	if !ok {
+		httpMessage := methodMessages[method]
+		template = httpMessage
+	}
+
+	return fmt.Sprintf(template, entity)
+}
+
+func HttpResponse(c *gin.Context, data any, code int, entity any, method string, errors map[string]string) {
 	response := gin.H{
 		"status":  http.StatusText(code),
-		"message": StatusMessage(code, action, entity),
+		"message": StatusMessage(code, method, entity),
 	}
 
 	if len(errors) > 0 {
@@ -21,29 +44,6 @@ func HttpResponse(c *gin.Context, data any, code int, entity any, action any, er
 	}
 
 	c.JSON(code, response)
-}
-
-func StatusMessage(code int, action any, entity any) string {
-	switch code {
-	case http.StatusOK:
-		if action == "get" {
-			return fmt.Sprintf("Successfully fetched %s data", entity)
-		} else if action == "update" {
-			return fmt.Sprintf("Successfully updated %s data", entity)
-		}
-	case http.StatusBadRequest:
-		return "Validation error"
-	case http.StatusCreated:
-		return fmt.Sprintf("Successfully created %s", entity)
-	case http.StatusNoContent:
-		return fmt.Sprintf("Successfully deleted %s", entity)
-	case http.StatusNotFound:
-		return fmt.Sprintf("%s not found", entity)
-	case http.StatusInternalServerError:
-		return fmt.Sprintf("Internal server error while processing %s", entity)
-	}
-
-	return fmt.Sprintf("Action %s for %s returned status %d", action, entity, code)
 }
 
 func SuccessResponse(c *gin.Context, data any) {
@@ -85,11 +85,11 @@ func ValidationErrorResponse(c *gin.Context, errors map[string]string) {
 	})
 }
 
-func PaginatedResponse(c *gin.Context, data any, code int, entity any, action any, total int64, page int, limit int) {
+func PaginatedResponse(c *gin.Context, data any, code int, entity any, method string, total int64, page int, limit int) {
 	totalPages := int((total + int64(limit) - 1) / int64(limit))
 	c.JSON(http.StatusOK, gin.H{
 		"status":  http.StatusText(code),
-		"message": StatusMessage(code, action, entity),
+		"message": StatusMessage(code, method, entity),
 		"data":    data,
 		"meta": gin.H{
 			"page":        page,

@@ -21,6 +21,6 @@ func (ctl *VillageController) GetVillages(c *gin.Context) {
 		"code":          c.Query("code"),
 		"district_code": c.Query("district_code"),
 	}
-	data, code, entity, action, total, page, limit := ctl.Repo.Index(c, filters)
-	utils.PaginatedResponse(c, data, code, entity, action, total, page, limit)
+	data, code, entity, total, page, limit := ctl.Repo.Index(c, filters)
+	utils.PaginatedResponse(c, data, code, entity, c.Request.Method, total, page, limit)
 }

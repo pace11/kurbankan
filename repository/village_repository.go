@@ -10,7 +10,7 @@ import (
 )
 
 type VillageRepository interface {
-	Index(c *gin.Context, filters map[string]any) ([]models.Village, int, any, any, int64, int, int)
+	Index(c *gin.Context, filters map[string]any) ([]models.Village, int, any, int64, int, int)
 }
 
 type villageRepository struct{}
@@ -19,7 +19,7 @@ func NewVillageRepository() VillageRepository {
 	return &villageRepository{}
 }
 
-func (r *villageRepository) Index(c *gin.Context, filters map[string]any) ([]models.Village, int, any, any, int64, int, int) {
+func (r *villageRepository) Index(c *gin.Context, filters map[string]any) ([]models.Village, int, any, int64, int, int) {
 	var villages []models.Village
 	var total int64
 
@@ -28,5 +28,5 @@ func (r *villageRepository) Index(c *gin.Context, filters map[string]any) ([]mod
 
 	paginatedQuery, page, limit := utils.ApplyPagination(c, query)
 	paginatedQuery.Find(&villages)
-	return villages, http.StatusOK, "village", "get", total, page, limit
+	return villages, http.StatusOK, "village", total, page, limit
 }

@@ -21,6 +21,6 @@ func (ctl *DistrictController) GetDistricts(c *gin.Context) {
 		"code":         c.Query("code"),
 		"regency_code": c.Query("regency_code"),
 	}
-	data, code, entity, action, total, page, limit := ctl.Repo.Index(c, filters)
-	utils.PaginatedResponse(c, data, code, entity, action, total, page, limit)
+	data, code, entity, total, page, limit := ctl.Repo.Index(c, filters)
+	utils.PaginatedResponse(c, data, code, entity, c.Request.Method, total, page, limit)
 }

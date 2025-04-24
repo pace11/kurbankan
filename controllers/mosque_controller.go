@@ -27,25 +27,21 @@ func (ctl *MosqueController) GetMosques(c *gin.Context) {
 		"village_code":  c.Query("village_code"),
 	}
 
-	data, code, entity, action, total, page, limit := ctl.Repo.Index(c, filters)
-	utils.PaginatedResponse(c, data, code, entity, action, total, page, limit)
+	data, code, entity, total, page, limit := ctl.Repo.Index(c, filters)
+	utils.PaginatedResponse(c, data, code, entity, c.Request.Method, total, page, limit)
 }
 
 func (ctl *MosqueController) GetMosque(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
+
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid ID")
+		utils.HttpResponse(c, nil, http.StatusBadRequest, "Invalid ID", c.Request.Method, nil)
 		return
 	}
 
-	mosque, err := ctl.Repo.Show(uint(id))
-	if err != nil {
-		utils.ErrorResponse(c, http.StatusNotFound, "Mosque not found")
-		return
-	}
-
-	utils.SuccessResponse(c, mosque)
+	data, code, entity, errors := ctl.Repo.Show(uint(id))
+	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
 }
 
 func (ctl *MosqueController) CreateMosque(c *gin.Context) {
@@ -55,8 +51,8 @@ func (ctl *MosqueController) CreateMosque(c *gin.Context) {
 		return
 	}
 
-	ctl.Repo.Save(&mosque)
-	utils.SuccessResponse(c, mosque)
+	data, code, entity, errors := ctl.Repo.Save(&mosque)
+	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
 }
 
 func (ctl *MosqueController) UpdateMosque(c *gin.Context) {
@@ -67,21 +63,12 @@ func (ctl *MosqueController) UpdateMosque(c *gin.Context) {
 		return
 	}
 
-	updated := ctl.Repo.Update(uint(id), &mosque)
-	if !updated {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Failed to update mosque")
-		return
-	}
-
-	utils.SuccessResponse(c, mosque)
+	data, code, entity, errors := ctl.Repo.Update(uint(id), &mosque)
+	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
 }
 
 func (ctl *MosqueController) DeleteMosque(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	deleted := ctl.Repo.Delete(uint(id))
-	if !deleted {
-		utils.ErrorResponse(c, http.StatusNotFound, "Data not found")
-		return
-	}
-	utils.DeleteResponse(c)
+	data, code, entity, errors := ctl.Repo.Delete(uint(id))
+	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
 }

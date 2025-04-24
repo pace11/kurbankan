@@ -10,10 +10,11 @@ import (
 )
 
 type BeneficiaryRepository interface {
-	Index(c *gin.Context, filters map[string]any) ([]models.BeneficiaryResponse, int, any, any, int64, int, int)
-	Save(beneficiary *models.Beneficiary)
-	Update(id uint, beneficiary *models.Beneficiary) (any, int, string, any, map[string]string)
-	Delete(id uint) bool
+	Index(c *gin.Context, filters map[string]any) ([]models.BeneficiaryResponse, int, any, int64, int, int)
+	Show(id uint) (*models.BeneficiaryResponse, int, string, map[string]string)
+	Save(beneficiary *models.Beneficiary) (any, int, string, map[string]string)
+	Update(id uint, beneficiary *models.Beneficiary) (any, int, string, map[string]string)
+	Delete(id uint) (any, int, string, map[string]string)
 }
 
 type beneficiaryRepo struct{}
@@ -22,7 +23,7 @@ func NewBeneficiaryRepository() BeneficiaryRepository {
 	return &beneficiaryRepo{}
 }
 
-func (r *beneficiaryRepo) Index(c *gin.Context, filters map[string]any) ([]models.BeneficiaryResponse, int, any, any, int64, int, int) {
+func (r *beneficiaryRepo) Index(c *gin.Context, filters map[string]any) ([]models.BeneficiaryResponse, int, any, int64, int, int) {
 	var beneficiaries []models.Beneficiary
 	var total int64
 
@@ -45,17 +46,41 @@ func (r *beneficiaryRepo) Index(c *gin.Context, filters map[string]any) ([]model
 		})
 	}
 
-	return response, http.StatusOK, "beneficiary", "get", total, page, limit
+	return response, http.StatusOK, "beneficiary", total, page, limit
 }
 
-func (r *beneficiaryRepo) Save(beneficiary *models.Beneficiary) {
-	config.DB.Create(beneficiary)
+func (r *beneficiaryRepo) Show(id uint) (*models.BeneficiaryResponse, int, string, map[string]string) {
+	var beneficiary models.Beneficiary
+
+	if err := config.DB.Where("id = ?", id).First(&beneficiary).Error; err != nil {
+		return nil, http.StatusNotFound, "beneficiary", nil
+	}
+
+	response := &models.BeneficiaryResponse{
+		ID:        beneficiary.ID,
+		MosqueID:  beneficiary.MosqueID,
+		Name:      beneficiary.Name,
+		Address:   beneficiary.Address,
+		Phone:     beneficiary.Phone,
+		CreatedAt: beneficiary.CreatedAt,
+		UpdatedAt: beneficiary.UpdatedAt,
+	}
+
+	return response, http.StatusOK, "beneficiary", nil
 }
 
-func (r *beneficiaryRepo) Update(id uint, beneficiary *models.Beneficiary) (any, int, string, any, map[string]string) {
+func (r *beneficiaryRepo) Save(beneficiary *models.Beneficiary) (any, int, string, map[string]string) {
+	if err := config.DB.Create(beneficiary).Error; err != nil {
+		return nil, http.StatusInternalServerError, "beneficiary", nil
+	}
+
+	return beneficiary, http.StatusCreated, "beneficiary", nil
+}
+
+func (r *beneficiaryRepo) Update(id uint, beneficiary *models.Beneficiary) (any, int, string, map[string]string) {
 	var existing models.Beneficiary
 	if err := config.DB.First(&existing, id).Error; err != nil {
-		return nil, http.StatusNotFound, "beneficiary", nil, nil
+		return nil, http.StatusNotFound, "beneficiary", nil
 	}
 
 	existing.MosqueID = beneficiary.MosqueID
@@ -64,13 +89,22 @@ func (r *beneficiaryRepo) Update(id uint, beneficiary *models.Beneficiary) (any,
 	existing.Phone = beneficiary.Phone
 
 	if err := config.DB.Save(&existing).Error; err != nil {
-		return nil, http.StatusInternalServerError, "beneficiary", nil, nil
+		return nil, http.StatusInternalServerError, "beneficiary", nil
 	}
 
-	return nil, http.StatusCreated, "beneficiary", nil, nil
+	return beneficiary, http.StatusOK, "beneficiary", nil
 }
 
-func (r *beneficiaryRepo) Delete(id uint) bool {
+func (r *beneficiaryRepo) Delete(id uint) (any, int, string, map[string]string) {
 	result := config.DB.Delete(&models.Beneficiary{}, id)
-	return result.RowsAffected > 0
+
+	if result.Error != nil {
+		return nil, http.StatusInternalServerError, "beneficiary", nil
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, http.StatusNotFound, "beneficiary", nil
+	}
+
+	return nil, http.StatusOK, "beneficiary", nil
 }
