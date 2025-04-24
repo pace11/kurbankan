@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 )
 
 type VirtualAccountRequest struct {
@@ -14,8 +15,11 @@ type VirtualAccountRequest struct {
 	Name           string  `json:"name"`
 	ExpectedAmount float64 `json:"expected_amount"`
 	IsClosed       bool    `json:"is_closed"`
+	IsSingleUse    bool    `json:"is_single_use"`   // optional
+	ExpirationDate string  `json:"expiration_date"` // optional ISO8601
 }
 
+// response bisa kamu ubah jadi struct jika ingin lebih strict
 func CreateVirtualAccount(externalID, bankCode, name string, amount float64) (map[string]any, error) {
 	payload := VirtualAccountRequest{
 		ExternalID:     externalID,
@@ -23,6 +27,8 @@ func CreateVirtualAccount(externalID, bankCode, name string, amount float64) (ma
 		Name:           name,
 		ExpectedAmount: amount,
 		IsClosed:       true,
+		IsSingleUse:    true,
+		ExpirationDate: time.Now().Add(48 * time.Hour).UTC().Format(time.RFC3339), // optional
 	}
 
 	body, _ := json.Marshal(payload)
@@ -31,8 +37,7 @@ func CreateVirtualAccount(externalID, bankCode, name string, amount float64) (ma
 		return nil, err
 	}
 
-	apiKey := os.Getenv("XENDIT_API_KEY")
-	req.SetBasicAuth(apiKey, "")
+	req.SetBasicAuth(os.Getenv("XENDIT_API_KEY"), "")
 	req.Header.Set("Content-Type", "application/json")
 
 	client := &http.Client{}

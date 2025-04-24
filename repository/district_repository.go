@@ -4,12 +4,13 @@ import (
 	"kurbankan/config"
 	"kurbankan/models"
 	"kurbankan/utils"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type DistrictRepository interface {
-	Index(c *gin.Context, filters map[string]any) ([]models.District, int64, int, int)
+	Index(c *gin.Context, filters map[string]any) ([]models.District, int, any, any, int64, int, int)
 }
 
 type districtRepository struct{}
@@ -18,7 +19,7 @@ func NewDistrictRepository() DistrictRepository {
 	return &districtRepository{}
 }
 
-func (r *districtRepository) Index(c *gin.Context, filters map[string]any) ([]models.District, int64, int, int) {
+func (r *districtRepository) Index(c *gin.Context, filters map[string]any) ([]models.District, int, any, any, int64, int, int) {
 	var districts []models.District
 	var total int64
 
@@ -27,5 +28,5 @@ func (r *districtRepository) Index(c *gin.Context, filters map[string]any) ([]mo
 
 	paginatedQuery, page, limit := utils.ApplyPagination(c, query)
 	paginatedQuery.Find(&districts)
-	return districts, total, page, limit
+	return districts, http.StatusOK, "district", "get", total, page, limit
 }

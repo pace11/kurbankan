@@ -27,8 +27,8 @@ func (ctl *ParticipantController) GetParticipants(c *gin.Context) {
 		"village_code":  c.Query("village_code"),
 	}
 
-	data, total, page, limit := ctl.Repo.Index(c, filters)
-	utils.PaginatedResponse(c, data, total, page, limit)
+	data, code, entity, action, total, page, limit := ctl.Repo.Index(c, filters)
+	utils.PaginatedResponse(c, data, code, entity, action, total, page, limit)
 }
 
 func (ctl *ParticipantController) GetParticipant(c *gin.Context) {

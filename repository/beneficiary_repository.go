@@ -4,14 +4,15 @@ import (
 	"kurbankan/config"
 	"kurbankan/models"
 	"kurbankan/utils"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type BeneficiaryRepository interface {
-	Index(c *gin.Context, filters map[string]any) ([]models.BeneficiaryResponse, int64, int, int)
+	Index(c *gin.Context, filters map[string]any) ([]models.BeneficiaryResponse, int, any, any, int64, int, int)
 	Save(beneficiary *models.Beneficiary)
-	Update(id uint, beneficiary *models.Beneficiary) bool
+	Update(id uint, beneficiary *models.Beneficiary) (any, int, string, any, map[string]string)
 	Delete(id uint) bool
 }
 
@@ -21,7 +22,7 @@ func NewBeneficiaryRepository() BeneficiaryRepository {
 	return &beneficiaryRepo{}
 }
 
-func (r *beneficiaryRepo) Index(c *gin.Context, filters map[string]any) ([]models.BeneficiaryResponse, int64, int, int) {
+func (r *beneficiaryRepo) Index(c *gin.Context, filters map[string]any) ([]models.BeneficiaryResponse, int, any, any, int64, int, int) {
 	var beneficiaries []models.Beneficiary
 	var total int64
 
@@ -44,17 +45,17 @@ func (r *beneficiaryRepo) Index(c *gin.Context, filters map[string]any) ([]model
 		})
 	}
 
-	return response, total, page, limit
+	return response, http.StatusOK, "beneficiary", "get", total, page, limit
 }
 
 func (r *beneficiaryRepo) Save(beneficiary *models.Beneficiary) {
 	config.DB.Create(beneficiary)
 }
 
-func (r *beneficiaryRepo) Update(id uint, beneficiary *models.Beneficiary) bool {
+func (r *beneficiaryRepo) Update(id uint, beneficiary *models.Beneficiary) (any, int, string, any, map[string]string) {
 	var existing models.Beneficiary
 	if err := config.DB.First(&existing, id).Error; err != nil {
-		return false
+		return nil, http.StatusNotFound, "beneficiary", nil, nil
 	}
 
 	existing.MosqueID = beneficiary.MosqueID
@@ -62,8 +63,11 @@ func (r *beneficiaryRepo) Update(id uint, beneficiary *models.Beneficiary) bool 
 	existing.Address = beneficiary.Address
 	existing.Phone = beneficiary.Phone
 
-	config.DB.Save(&existing)
-	return true
+	if err := config.DB.Save(&existing).Error; err != nil {
+		return nil, http.StatusInternalServerError, "beneficiary", nil, nil
+	}
+
+	return nil, http.StatusCreated, "beneficiary", nil, nil
 }
 
 func (r *beneficiaryRepo) Delete(id uint) bool {

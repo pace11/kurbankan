@@ -20,6 +20,6 @@ func (ctl *ProvinceController) GetProvinces(c *gin.Context) {
 		"name": c.Query("name"),
 		"code": c.Query("code"),
 	}
-	data, total, page, limit := ctl.Repo.Index(c, filters)
-	utils.PaginatedResponse(c, data, total, page, limit)
+	data, code, entity, action, total, page, limit := ctl.Repo.Index(c, filters)
+	utils.PaginatedResponse(c, data, code, entity, action, total, page, limit)
 }

@@ -23,8 +23,8 @@ func (ctl *BeneficiaryController) GetBeneficiaries(c *gin.Context) {
 		"name": c.Query("name"),
 	}
 
-	data, total, page, limit := ctl.Repo.Index(c, filters)
-	utils.PaginatedResponse(c, data, total, page, limit)
+	data, code, entity, action, total, page, limit := ctl.Repo.Index(c, filters)
+	utils.PaginatedResponse(c, data, code, entity, action, total, page, limit)
 }
 
 func (ctl *BeneficiaryController) CreateBeneficiary(c *gin.Context) {
@@ -46,12 +46,8 @@ func (ctl *BeneficiaryController) UpdateBeneficiary(c *gin.Context) {
 		return
 	}
 
-	updated := ctl.Repo.Update(uint(id), &beneficiary)
-	if !updated {
-		utils.ErrorResponse(c, http.StatusNotFound, "Data not found")
-	}
-
-	utils.SuccessResponse(c, beneficiary)
+	data, code, entity, action, errors := ctl.Repo.Update(uint(id), &beneficiary)
+	utils.HttpResponse(c, data, code, entity, action, errors)
 }
 
 func (ctl *BeneficiaryController) DeleteBeneficiary(c *gin.Context) {

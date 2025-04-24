@@ -21,6 +21,6 @@ func (ctl *RegencyController) GetRegencies(c *gin.Context) {
 		"code":          c.Query("code"),
 		"province_code": c.Query("province_code"),
 	}
-	data, total, page, limit := ctl.Repo.Index(c, filters)
-	utils.PaginatedResponse(c, data, total, page, limit)
+	data, code, entity, action, total, page, limit := ctl.Repo.Index(c, filters)
+	utils.PaginatedResponse(c, data, code, entity, action, total, page, limit)
 }

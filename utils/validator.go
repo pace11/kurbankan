@@ -31,10 +31,10 @@ func BindAndValidate(c *gin.Context, form any) error {
 				out[jsonField] = fmt.Sprintf("%s is %s", jsonField, fe.Tag())
 			}
 
-			ValidationErrorResponse(c, out)
+			HttpResponse(c, nil, http.StatusBadRequest, nil, nil, out)
 			return err
 		}
-		ErrorResponse(c, http.StatusBadRequest, err.Error())
+		HttpResponse(c, nil, http.StatusBadRequest, nil, nil, nil)
 		return err
 	}
 	return nil

@@ -4,12 +4,13 @@ import (
 	"kurbankan/config"
 	"kurbankan/models"
 	"kurbankan/utils"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 )
 
 type MosqueRepository interface {
-	Index(c *gin.Context, filters map[string]any) ([]models.MosqueResponse, int64, int, int)
+	Index(c *gin.Context, filters map[string]any) ([]models.MosqueResponse, int, any, any, int64, int, int)
 	Show(id uint) (*models.MosqueResponse, error)
 	Save(mosque *models.UserCreateDTO) bool
 	Update(id uint, mosque *models.UserUpdateDTO) bool
@@ -22,7 +23,7 @@ func NewMosqueRepository() MosqueRepository {
 	return &mosqueRepository{}
 }
 
-func (r *mosqueRepository) Index(c *gin.Context, filters map[string]any) ([]models.MosqueResponse, int64, int, int) {
+func (r *mosqueRepository) Index(c *gin.Context, filters map[string]any) ([]models.MosqueResponse, int, any, any, int64, int, int) {
 	var mosques []models.Mosque
 	var total int64
 
@@ -49,7 +50,7 @@ func (r *mosqueRepository) Index(c *gin.Context, filters map[string]any) ([]mode
 		})
 	}
 
-	return response, total, page, limit
+	return response, http.StatusOK, "mosque", "get", total, page, limit
 }
 
 func (r *mosqueRepository) Show(id uint) (*models.MosqueResponse, error) {

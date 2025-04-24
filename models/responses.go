@@ -45,3 +45,16 @@ type BeneficiaryResponse struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+
+type TransactionItemResponse struct {
+	ID            uint              `json:"id"`
+	TransactionID uint              `json:"transaction_id"`
+	ParticipantID uint              `json:"participant_id"`
+	Amount        float64           `json:"amount"`
+	Status        TransactionStatus `json:"status"`
+	PaymentType   PaymentType       `json:"payment_type"`
+	ExternalID    string            `json:"external_id"`
+	PaidAt        *time.Time        `json:"paid_at"`
+	CreatedAt     time.Time         `json:"created_at"`
+	UpdatedAt     time.Time         `json:"updated_at"`
+}

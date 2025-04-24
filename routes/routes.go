@@ -37,6 +37,9 @@ func SetupRoutes(r *gin.Engine) {
 	area.GET("/districts", DistrictController.GetDistricts)
 	area.GET("/villages", VillageController.GetVillages)
 
+	// xendit virtual account
+	api.POST("/xendit/va-callback", controllers.XenditVAWebhookHandler)
+
 	api.Use(middlewares.JWTAuthMiddleware())
 
 	// qurban-periods
@@ -78,5 +81,4 @@ func SetupRoutes(r *gin.Engine) {
 
 	// transactions
 	api.POST("/transaction", controllers.CreateTransaction)
-	api.GET("/transaction/refresh/:external_id", controllers.RefreshTransactionStatus)
 }

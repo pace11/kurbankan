@@ -1,10 +1,8 @@
 package controllers
 
 import (
-	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"kurbankan/config"
@@ -94,43 +92,5 @@ func CreateTransaction(c *gin.Context) {
 		"transaction": transaction,
 		"item":        item,
 		"va":          va,
-	})
-}
-
-func RefreshTransactionStatus(c *gin.Context) {
-	externalID := c.Param("external_id")
-	if externalID == "" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Missing external_id")
-		return
-	}
-
-	// Call Xendit API to check status
-	url := fmt.Sprintf("https://api.xendit.co/payment_requests?external_id=%s", externalID)
-	req, _ := http.NewRequest("GET", url, nil)
-	req.SetBasicAuth(os.Getenv("XENDIT_API_KEY"), "")
-
-	client := &http.Client{}
-	resp, err := client.Do(req)
-	if err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to connect to Xendit")
-		return
-	}
-	defer resp.Body.Close()
-
-	var result map[string]any
-	json.NewDecoder(resp.Body).Decode(&result)
-
-	// Optional: cek dan update status jika paid
-	if data, ok := result["data"].([]any); ok && len(data) > 0 {
-		item := data[0].(map[string]any)
-		if status, ok := item["status"].(string); ok && status == "COMPLETED" {
-			config.DB.Model(&models.TransactionItem{}).
-				Where("external_id = ?", externalID).
-				Update("status", models.Paid)
-		}
-	}
-
-	c.JSON(http.StatusOK, gin.H{
-		"data": result,
 	})
 }
