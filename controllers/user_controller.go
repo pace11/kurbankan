@@ -4,7 +4,6 @@ import (
 	"kurbankan/models"
 	"kurbankan/repository"
 	"kurbankan/utils"
-	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -19,38 +18,23 @@ func NewUserController(repo repository.UserRepository) *UserController {
 }
 
 func (ctl *UserController) GetUsers(c *gin.Context) {
-	users := ctl.Repo.Index()
-	utils.SuccessResponse(c, users)
-}
-
-func (ctl *UserController) CreateUser(c *gin.Context) {
-	var user models.User
-	if utils.BindAndValidate(c, &user) != nil {
-		return
+	filters := map[string]any{
+		"email": c.Query("email"),
+		"role":  c.Query("role"),
 	}
-	ctl.Repo.Save(&user)
-	utils.SuccessResponse(c, user)
+
+	data, code, entity, total, page, limit := ctl.Repo.Index(c, filters)
+	utils.PaginatedResponse(c, data, code, entity, c.Request.Method, total, page, limit)
 }
 
 func (ctl *UserController) UpdateUser(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	var user models.User
+
 	if utils.BindAndValidate(c, &user) != nil {
 		return
 	}
-	updated := ctl.Repo.Update(uint(id), &user)
-	if !updated {
-		utils.ErrorResponse(c, http.StatusNotFound, "Data not found")
-	}
-	utils.SuccessResponse(c, user)
-}
 
-func (ctl *UserController) DeleteUser(c *gin.Context) {
-	id, _ := strconv.Atoi(c.Param("id"))
-	deleted := ctl.Repo.Delete(uint(id))
-	if !deleted {
-		utils.ErrorResponse(c, http.StatusNotFound, "Data not found")
-		return
-	}
-	utils.DeleteResponse(c)
+	data, code, entity, errors := ctl.Repo.Update(uint(id), &user)
+	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
 }

@@ -112,6 +112,10 @@ func (r *mosqueRepository) Save(mosque *models.UserCreateDTO) (any, int, string,
 		return nil, http.StatusInternalServerError, "mosque", nil
 	}
 
+	if tx.Commit().Error != nil {
+		return nil, http.StatusInternalServerError, "trx mosque", nil
+	}
+
 	return mosque, http.StatusCreated, "mosque", nil
 }
 

@@ -56,16 +56,14 @@ func SetupRoutes(r *gin.Engine) {
 
 	// users
 	api.GET("/users", UserController.GetUsers)
-	api.POST("/users", UserController.CreateUser)
-	api.PATCH("/users/:id", UserController.UpdateUser)
-	api.DELETE("/users/:id", UserController.DeleteUser)
+	api.PATCH("/user/:id", UserController.UpdateUser)
 
 	// mosques
 	api.GET("/mosques", MosqueController.GetMosques)
-	api.GET("/mosques/:id", MosqueController.GetMosque)
-	api.POST("/mosques", MosqueController.CreateMosque)
-	api.PATCH("/mosques/:id", MosqueController.UpdateMosque)
-	api.DELETE("/mosques/:id", MosqueController.DeleteMosque)
+	api.GET("/mosque/:id", MosqueController.GetMosque)
+	api.POST("/mosque", MosqueController.CreateMosque)
+	api.PATCH("/mosque/:id", MosqueController.UpdateMosque)
+	api.DELETE("/mosque/:id", MosqueController.DeleteMosque)
 
 	// participants
 	api.GET("/participants", ParticipantController.GetParticipants)
