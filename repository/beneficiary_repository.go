@@ -79,6 +79,7 @@ func (r *beneficiaryRepo) Save(beneficiary *models.Beneficiary) (any, int, strin
 
 func (r *beneficiaryRepo) Update(id uint, beneficiary *models.Beneficiary) (any, int, string, map[string]string) {
 	var existing models.Beneficiary
+
 	if err := config.DB.First(&existing, id).Error; err != nil {
 		return nil, http.StatusNotFound, "beneficiary", nil
 	}

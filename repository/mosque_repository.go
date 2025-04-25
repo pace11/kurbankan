@@ -138,28 +138,37 @@ func (r *mosqueRepository) Update(id uint, mosque *models.UserUpdateDTO) (any, i
 
 	if err := tx.First(&userToUpdate, existing.UserID).Error; err != nil {
 		tx.Rollback()
-		return nil, http.StatusInternalServerError, "user mosque", nil
+		return nil, http.StatusNotFound, "user mosque", nil
 	}
 
-	userToUpdate.Email = mosque.Email
-	userToUpdate.Password = mosque.Password
-	userToUpdate.Role = models.UserRole(*mosque.Role)
-
-	if err := tx.Save(&userToUpdate).Error; err != nil {
+	if err := tx.Model(&userToUpdate).Updates(map[string]any{
+		"email":    mosque.Email,
+		"password": mosque.Password,
+		"role":     models.UserRole(*mosque.Role),
+	}).Error; err != nil {
 		tx.Rollback()
 		return nil, http.StatusInternalServerError, "mosque", nil
 	}
 
-	existing.Name = mosque.Name
-	existing.Address = mosque.Address
-	existing.Photos = mosque.Photos
-	existing.ProvinceCode = mosque.ProvinceCode
-	existing.DistrictCode = mosque.DistrictCode
-	existing.RegencyCode = mosque.RegencyCode
-	existing.VillageCode = mosque.VillageCode
-
 	if err := tx.Save(&existing).Error; err != nil {
 		tx.Rollback()
+		return nil, http.StatusInternalServerError, "mosque", nil
+	}
+
+	if err := tx.Model(&existing).Updates(map[string]any{
+		"name":          mosque.Name,
+		"address":       mosque.Address,
+		"photos":        mosque.Photos,
+		"province_code": mosque.ProvinceCode,
+		"district_code": mosque.DistrictCode,
+		"regency_code":  mosque.RegencyCode,
+		"village_code":  mosque.VillageCode,
+	}).Error; err != nil {
+		tx.Rollback()
+		return nil, http.StatusInternalServerError, "mosque", nil
+	}
+
+	if err := tx.Commit().Error; err != nil {
 		return nil, http.StatusInternalServerError, "mosque", nil
 	}
 

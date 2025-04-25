@@ -9,7 +9,7 @@ import (
 
 func StatusMessage(code int, method string, entity any) string {
 	messages := map[int]string{
-		http.StatusBadRequest:          "Validation error",
+		http.StatusBadRequest:          "Validation error %v",
 		http.StatusCreated:             "Successfully created %v",
 		http.StatusNotFound:            "%v not found",
 		http.StatusInternalServerError: "Internal server error while processing %v",

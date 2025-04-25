@@ -58,3 +58,31 @@ type TransactionItemResponse struct {
 	CreatedAt     time.Time         `json:"created_at"`
 	UpdatedAt     time.Time         `json:"updated_at"`
 }
+
+type QurbanPeriodResponse struct {
+	ID          uint      `json:"id"`
+	Year        int       `json:"year"`
+	StartDate   time.Time `json:"start_date"`
+	EndDate     time.Time `json:"end_date"`
+	Description *string   `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+type QurbanOptionResponse struct {
+	ID             uint             `json:"id"`
+	QurbanPeriodID uint             `json:"qurban_period_id"`
+	AnimalType     QurbanAnimalType `json:"animal_type"`
+	SchemeType     QurbanSchemeType `json:"scheme_type"`
+	Price          float64          `json:"price"`
+	Slots          int              `json:"slots"`
+	CreatedAt      time.Time        `json:"created_at"`
+	UpdatedAt      time.Time        `json:"updated_at"`
+}
+type UserListResponse struct {
+	ID        uint      `json:"id"`
+	Email     string    `json:"email"`
+	Role      UserRole  `json:"role"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}

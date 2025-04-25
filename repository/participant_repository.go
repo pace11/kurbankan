@@ -11,9 +11,9 @@ import (
 
 type ParticipantRepository interface {
 	Index(c *gin.Context, filters map[string]any) ([]models.ParticipantResponse, int, any, int64, int, int)
-	Show(id uint) (*models.ParticipantResponse, error)
-	Update(id uint, participant *models.UserUpdateDTO) bool
-	Delete(id uint) bool
+	Show(id uint) (*models.ParticipantResponse, int, string, map[string]string)
+	Update(id uint, participant *models.UserUpdateDTO) (any, int, string, map[string]string)
+	Delete(id uint) (any, int, string, map[string]string)
 }
 
 type participantRepository struct{}
@@ -50,12 +50,11 @@ func (r *participantRepository) Index(c *gin.Context, filters map[string]any) ([
 	return response, http.StatusOK, "participant", total, page, limit
 }
 
-func (r *participantRepository) Show(id uint) (*models.ParticipantResponse, error) {
+func (r *participantRepository) Show(id uint) (*models.ParticipantResponse, int, string, map[string]string) {
 	var participant models.Participant
-	err := config.DB.Preload("Province").Preload("Regency").Preload("District").Preload("Village").Preload("User").Where("id = ?", id).First(&participant).Error
 
-	if err != nil {
-		return nil, err
+	if err := config.DB.Preload("Province").Preload("Regency").Preload("District").Preload("Village").Preload("User").Where("id = ?", id).First(&participant).Error; err != nil {
+		return nil, http.StatusNotFound, "participant", nil
 	}
 
 	response := &models.ParticipantResponse{
@@ -70,15 +69,16 @@ func (r *participantRepository) Show(id uint) (*models.ParticipantResponse, erro
 		CreatedAt: participant.CreatedAt,
 		UpdatedAt: participant.UpdatedAt,
 	}
-	return response, nil
+
+	return response, http.StatusOK, "participant", nil
 }
 
-func (r *participantRepository) Update(id uint, participant *models.UserUpdateDTO) bool {
+func (r *participantRepository) Update(id uint, participant *models.UserUpdateDTO) (any, int, string, map[string]string) {
 	var existing models.Participant
 	var userToUpdate models.User
 
 	if err := config.DB.Preload("User").First(&existing, id).Error; err != nil {
-		return false
+		return nil, http.StatusNotFound, "participant", nil
 	}
 
 	tx := config.DB.Begin()
@@ -87,7 +87,7 @@ func (r *participantRepository) Update(id uint, participant *models.UserUpdateDT
 		hashed, err := utils.HashPassword(participant.Password)
 		if err != nil {
 			tx.Rollback()
-			return false
+			return nil, http.StatusInternalServerError, "participant", nil
 		}
 		participant.Password = hashed
 	} else {
@@ -96,34 +96,47 @@ func (r *participantRepository) Update(id uint, participant *models.UserUpdateDT
 
 	if err := tx.First(&userToUpdate, existing.UserID).Error; err != nil {
 		tx.Rollback()
-		return false
+		return nil, http.StatusNotFound, "user participant", nil
 	}
 
-	userToUpdate.Email = participant.Email
-	userToUpdate.Password = participant.Password
-	userToUpdate.Role = models.UserRole(*participant.Role)
-
-	if err := tx.Save(&userToUpdate).Error; err != nil {
+	if err := tx.Model(&userToUpdate).Updates(map[string]any{
+		"email":    participant.Email,
+		"password": participant.Password,
+		"role":     models.UserRole(*participant.Role),
+	}).Error; err != nil {
 		tx.Rollback()
-		return false
+		return nil, http.StatusInternalServerError, "participant", nil
 	}
 
-	existing.Name = participant.Name
-	existing.Address = participant.Address
-	existing.ProvinceCode = participant.ProvinceCode
-	existing.DistrictCode = participant.DistrictCode
-	existing.RegencyCode = participant.RegencyCode
-	existing.VillageCode = participant.VillageCode
-
-	if err := tx.Save(&existing).Error; err != nil {
+	if err := tx.Model(&existing).Updates(map[string]any{
+		"name":          participant.Name,
+		"address":       participant.Address,
+		"province_code": participant.ProvinceCode,
+		"district_code": participant.DistrictCode,
+		"regency_code":  participant.RegencyCode,
+		"village_code":  participant.VillageCode,
+	}).Error; err != nil {
 		tx.Rollback()
-		return false
+		return nil, http.StatusInternalServerError, "participant", nil
 	}
 
-	return tx.Commit().Error == nil
+	if err := tx.Commit().Error; err != nil {
+		return nil, http.StatusInternalServerError, "participant", nil
+	}
+
+	return participant, http.StatusOK, "participant", nil
 }
 
-func (r *participantRepository) Delete(id uint) bool {
+func (r *participantRepository) Delete(id uint) (any, int, string, map[string]string) {
 	result := config.DB.Delete(&models.Participant{}, id)
-	return result.RowsAffected > 0
+
+	if result.Error != nil {
+		return nil, http.StatusInternalServerError, "participant", nil
+	}
+
+	if result.RowsAffected == 0 {
+		return nil, http.StatusNotFound, "mosque", nil
+	}
+
+	return nil, http.StatusOK, "mosque", nil
 }

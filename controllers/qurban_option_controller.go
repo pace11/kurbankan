@@ -4,7 +4,6 @@ import (
 	"kurbankan/models"
 	"kurbankan/repository"
 	"kurbankan/utils"
-	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -19,38 +18,40 @@ func NewQurbanOptionController(repo repository.QurbanOptionRepository) *QurbanOp
 }
 
 func (ctl *QurbanOptionController) GetQurbanOptions(c *gin.Context) {
-	qurbanOptions := ctl.Repo.Index()
-	utils.SuccessResponse(c, qurbanOptions)
+	filters := map[string]any{
+		"animal_type": c.Query("animal_type"),
+		"scheme_type": c.Query("scheme_type"),
+	}
+
+	data, code, entity, total, page, limit := ctl.Repo.Index(c, filters)
+	utils.PaginatedResponse(c, data, code, entity, c.Request.Method, total, page, limit)
 }
 
 func (ctl *QurbanOptionController) CreateQurbanOption(c *gin.Context) {
 	var qurbanOption models.QurbanOption
+
 	if utils.BindAndValidate(c, &qurbanOption) != nil {
 		return
 	}
-	ctl.Repo.Save(&qurbanOption)
-	utils.SuccessResponse(c, qurbanOption)
+
+	data, code, entity, errors := ctl.Repo.Save(&qurbanOption)
+	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
 }
 
 func (ctl *QurbanOptionController) UpdateQurbanOption(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	var qurbanOption models.QurbanOption
+
 	if utils.BindAndValidate(c, &qurbanOption) != nil {
 		return
 	}
-	updated := ctl.Repo.Update(uint(id), &qurbanOption)
-	if !updated {
-		utils.ErrorResponse(c, http.StatusNotFound, "Data not found")
-	}
-	utils.SuccessResponse(c, qurbanOption)
+
+	data, code, entity, errors := ctl.Repo.Update(uint(id), &qurbanOption)
+	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
 }
 
 func (ctl *QurbanOptionController) DeleteQurbanPeriod(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	deleted := ctl.Repo.Delete(uint(id))
-	if !deleted {
-		utils.ErrorResponse(c, http.StatusNotFound, "Data not found")
-		return
-	}
-	utils.DeleteResponse(c)
+	data, code, entity, errors := ctl.Repo.Delete(uint(id))
+	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
 }

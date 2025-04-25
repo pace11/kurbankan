@@ -44,15 +44,15 @@ func SetupRoutes(r *gin.Engine) {
 
 	// qurban-periods
 	api.GET("/qurban-periods", QurbanPeriodController.GetQurbanPeriods)
-	api.POST("/qurban-periods", QurbanPeriodController.CreateQurbanPeriod)
-	api.PATCH("/qurban-periods/:id", QurbanPeriodController.UpdateQurbanPeriod)
-	api.DELETE("/qurban-periods/:id", QurbanPeriodController.DeleteQurbanPeriod)
+	api.POST("/qurban-period", QurbanPeriodController.CreateQurbanPeriod)
+	api.PATCH("/qurban-period/:id", QurbanPeriodController.UpdateQurbanPeriod)
+	api.DELETE("/qurban-period/:id", QurbanPeriodController.DeleteQurbanPeriod)
 
 	// qurban-options
 	api.GET("/qurban-options", QurbanOptionController.GetQurbanOptions)
-	api.POST("/qurban-options", QurbanOptionController.CreateQurbanOption)
-	api.PATCH("/qurban-options/:id", QurbanOptionController.UpdateQurbanOption)
-	api.DELETE("/qurban-options/:id", QurbanOptionController.DeleteQurbanPeriod)
+	api.POST("/qurban-option", QurbanOptionController.CreateQurbanOption)
+	api.PATCH("/qurban-option/:id", QurbanOptionController.UpdateQurbanOption)
+	api.DELETE("/qurban-option/:id", QurbanOptionController.DeleteQurbanPeriod)
 
 	// users
 	api.GET("/users", UserController.GetUsers)
