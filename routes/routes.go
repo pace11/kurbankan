@@ -21,11 +21,12 @@ func SetupRoutes(r *gin.Engine) {
 	DistrictController := controllers.NewDistrictRepository(repository.NewDistrictRepository())
 	VillageController := controllers.NewVillageRepository(repository.NewVillageRepository())
 	BeneficiaryController := controllers.NewBeneficiaryController(repository.NewBeneficiaryRepository())
+	RegisterController := controllers.NewRegisterController(repository.NewRegisterRepository())
 
 	// auth
 	auth := r.Group("/auth")
-	auth.POST("/register", controllers.RegisterParticipant)
-	auth.POST("/register/mosque", controllers.RegisterMosque)
+	auth.POST("/register/participant", RegisterController.RegisterParticipant)
+	auth.POST("/register/mosque", RegisterController.RegisterMosque)
 	auth.POST("/login", controllers.Login)
 
 	api := r.Group("/api")
