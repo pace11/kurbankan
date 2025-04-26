@@ -13,21 +13,33 @@ func StatusMessage(code int, method string, entity any) string {
 		http.StatusCreated:             "Successfully created %v",
 		http.StatusNotFound:            "%v not found",
 		http.StatusInternalServerError: "Internal server error while processing %v",
+		http.StatusUnauthorized:        "Unauthorized %v",
 	}
 
 	methodMessages := map[string]string{
 		"GET":    "Successfully fetched %v data",
+		"POST":   "Successfully proceed %v data",
 		"PATCH":  "Successfully updated %v data",
 		"DELETE": "Successfully deleted %v data",
 	}
 
-	template, ok := messages[code]
-	if !ok {
-		httpMessage := methodMessages[method]
-		template = httpMessage
+	if template, ok := messages[code]; ok {
+		return fmt.Sprintf(template, entity)
 	}
 
-	return fmt.Sprintf(template, entity)
+	if template, ok := methodMessages[method]; ok {
+		return fmt.Sprintf(template, entity)
+	}
+
+	return "Unknown status"
+}
+
+func ErrorResponse(c *gin.Context, code int, message string) {
+	c.JSON(code, gin.H{
+		"status":  "error",
+		"message": message,
+		"data":    nil,
+	})
 }
 
 func HttpResponse(c *gin.Context, data any, code int, entity any, method string, errors map[string]string) {
@@ -44,45 +56,6 @@ func HttpResponse(c *gin.Context, data any, code int, entity any, method string,
 	}
 
 	c.JSON(code, response)
-}
-
-func SuccessResponse(c *gin.Context, data any) {
-	c.JSON(http.StatusOK, gin.H{
-		"status":  "success",
-		"message": "Get data success",
-		"data":    data,
-	})
-}
-
-func CreatedResponse(c *gin.Context, data any) {
-	c.JSON(http.StatusCreated, gin.H{
-		"status":  "success",
-		"message": "Data created",
-		"data":    data,
-	})
-}
-
-func ErrorResponse(c *gin.Context, code int, message string) {
-	c.JSON(code, gin.H{
-		"status":  "error",
-		"message": message,
-		"data":    nil,
-	})
-}
-
-func DeleteResponse(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{
-		"status":  "success",
-		"message": "Data deleted",
-	})
-}
-
-func ValidationErrorResponse(c *gin.Context, errors map[string]string) {
-	c.JSON(http.StatusBadRequest, gin.H{
-		"status":  "error",
-		"message": "Validation error",
-		"data":    errors,
-	})
 }
 
 func PaginatedResponse(c *gin.Context, data any, code int, entity any, method string, total int64, page int, limit int) {

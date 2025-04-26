@@ -46,6 +46,19 @@ type BeneficiaryResponse struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
+type TransactionResponse struct {
+	ID             uint      `json:"id"`
+	QurbanPeriodID uint      `json:"qurban_period_id"`
+	MosqueID       uint      `json:"mosque_id"`
+	QurbanOptionID uint      `json:"qurban_option_id"`
+	IsFull         bool      `json:"is_full"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
+
+	Mosque       *Mosque       `json:"mosque"`
+	QurbanPeriod *QurbanPeriod `json:"qurban_period"`
+	QurbanOption *QurbanOption `json:"qurban_option"`
+}
 type TransactionItemResponse struct {
 	ID            uint              `json:"id"`
 	TransactionID uint              `json:"transaction_id"`

@@ -22,12 +22,14 @@ func SetupRoutes(r *gin.Engine) {
 	VillageController := controllers.NewVillageRepository(repository.NewVillageRepository())
 	BeneficiaryController := controllers.NewBeneficiaryController(repository.NewBeneficiaryRepository())
 	RegisterController := controllers.NewRegisterController(repository.NewRegisterRepository())
+	LoginController := controllers.NewLoginController(repository.NewLoginRepository())
+	TransactionController := controllers.NewTransactionController(repository.NewTransactionRepository())
 
 	// auth
 	auth := r.Group("/auth")
 	auth.POST("/register/participant", RegisterController.RegisterParticipant)
 	auth.POST("/register/mosque", RegisterController.RegisterMosque)
-	auth.POST("/login", controllers.Login)
+	auth.POST("/login", LoginController.Login)
 
 	api := r.Group("/api")
 
@@ -80,5 +82,6 @@ func SetupRoutes(r *gin.Engine) {
 	api.DELETE("/beneficiary/:id", BeneficiaryController.DeleteBeneficiary)
 
 	// transactions
-	api.POST("/transaction", controllers.CreateTransaction)
+	api.GET("/transactions", TransactionController.GetTransactions)
+	api.POST("/transaction", TransactionController.CreateTransaction)
 }

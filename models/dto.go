@@ -24,3 +24,15 @@ type UserUpdateDTO struct {
 	DistrictCode string  `json:"district_code" binding:"required"`
 	VillageCode  string  `json:"village_code" binding:"required"`
 }
+
+type LoginDTO struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required"`
+}
+
+type TransactionDTO struct {
+	MosqueID       uint    `json:"mosque_id" binding:"required"`
+	QurbanOptionID uint    `json:"qurban_option_id" binding:"required"`
+	ParticipantID  uint    `json:"participant_id" binding:"required"`
+	Amount         float64 `json:"amount" binding:"required"`
+}
