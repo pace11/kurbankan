@@ -25,6 +25,7 @@ func SetupRoutes(r *gin.Engine) {
 	LoginController := controllers.NewLoginController(repository.NewLoginRepository())
 	TransactionController := controllers.NewTransactionController(repository.NewTransactionRepository())
 	MigrationController := controllers.NewMigrationController()
+	SeederController := controllers.NewSeederController()
 
 	// auth
 	auth := r.Group("/auth")
@@ -38,6 +39,12 @@ func SetupRoutes(r *gin.Engine) {
 	api.GET("/migrate/status", MigrationController.CheckMigrationStatus)
 	api.POST("/migrate/up", MigrationController.RunMigration)
 	api.POST("/migrate/down", MigrationController.DropAllTables)
+
+	// seeder endpoints
+	api.GET("/seed/status", SeederController.GetSeederStatus)
+	api.POST("/seed/run", SeederController.RunAllSeeders)
+	api.POST("/seed/run/:seed", SeederController.RunSpecificSeeder)
+	api.DELETE("/seed/clear", SeederController.ClearSeededData)
 
 	// area
 	area := api.Group("/area")
