@@ -8,7 +8,7 @@ import (
 
 type QurbanPeriod struct {
 	ID          uint           `json:"id" gorm:"primaryKey"`
-	Year        int            `json:"year" gorm:"type:year;not null" binding:"required"`
+	Year        int            `json:"year" gorm:"type:integer;not null" binding:"required"`
 	StartDate   time.Time      `json:"start_date" gorm:"type:date;not null" binding:"required"`
 	EndDate     time.Time      `json:"end_date" gorm:"type:date;not null" binding:"required"`
 	Description *string        `json:"description"`

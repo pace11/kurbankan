@@ -24,6 +24,7 @@ func SetupRoutes(r *gin.Engine) {
 	RegisterController := controllers.NewRegisterController(repository.NewRegisterRepository())
 	LoginController := controllers.NewLoginController(repository.NewLoginRepository())
 	TransactionController := controllers.NewTransactionController(repository.NewTransactionRepository())
+	MigrationController := controllers.NewMigrationController()
 
 	// auth
 	auth := r.Group("/auth")
@@ -32,6 +33,11 @@ func SetupRoutes(r *gin.Engine) {
 	auth.POST("/login", LoginController.Login)
 
 	api := r.Group("/api")
+
+	// migration endpoints
+	api.GET("/migrate/status", MigrationController.CheckMigrationStatus)
+	api.POST("/migrate/up", MigrationController.RunMigration)
+	api.POST("/migrate/down", MigrationController.DropAllTables)
 
 	// area
 	area := api.Group("/area")

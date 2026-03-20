@@ -89,7 +89,7 @@ func (r *mosqueRepository) Save(mosque *models.UserCreateDTO) (any, int, string,
 	userToCreate := models.User{
 		Email:    mosque.Email,
 		Password: hashed,
-		Role:     models.MosqueMember,
+		Role:     models.RoleMosqueMember,
 	}
 
 	if err := tx.Save(&userToCreate).Error; err != nil {

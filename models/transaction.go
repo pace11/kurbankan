@@ -8,6 +8,7 @@ import (
 
 type Transaction struct {
 	ID             uint           `json:"id" gorm:"primaryKey"`
+	Code           string         `json:"code" gorm:"size:100;unique"`
 	QurbanPeriodID uint           `json:"qurban_period_id"`
 	MosqueID       uint           `json:"mosque_id"`
 	QurbanOptionID uint           `json:"qurban_option_id"`

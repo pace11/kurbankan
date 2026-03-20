@@ -7,16 +7,16 @@ import (
 type UserRole string
 
 const (
-	Admin        UserRole = "admin"
-	MosqueMember UserRole = "mosque_member"
-	UserMember   UserRole = "user_member"
+	Admin            UserRole = "admin"
+	RoleMosqueMember UserRole = "mosque_member"
+	RoleUserMember   UserRole = "user_member"
 )
 
 type User struct {
 	ID        uint      `json:"id" gorm:"primaryKey"`
 	Email     string    `json:"email" gorm:"unique;not null" binding:"required"`
 	Password  string    `json:"password" gorm:"type:text;not null"`
-	Role      UserRole  `json:"role" gorm:"type:enum('admin','mosque_member','user_member');default:'user_member';not null" binding:"required"`
+	Role      UserRole  `json:"role" gorm:"type:varchar(50);default:'user_member';not null" binding:"required"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }

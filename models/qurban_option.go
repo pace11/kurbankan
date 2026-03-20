@@ -19,8 +19,8 @@ const (
 type QurbanOption struct {
 	ID             uint             `json:"id" gorm:"primaryKey"`
 	QurbanPeriodID uint             `json:"qurban_period_id" binding:"required"`
-	AnimalType     QurbanAnimalType `json:"animal_type" gorm:"type:enum('cow','goat');not null" binding:"required"`
-	SchemeType     QurbanSchemeType `json:"scheme_type" gorm:"type:enum('group','individual');not null" binding:"required"`
+	AnimalType     QurbanAnimalType `json:"animal_type" gorm:"type:varchar(20);not null" binding:"required"`
+	SchemeType     QurbanSchemeType `json:"scheme_type" gorm:"type:varchar(20);not null" binding:"required"`
 	Price          float64          `json:"price" binding:"required"`
 	Slots          int              `json:"slots" gorm:"default:1"`
 	CreatedAt      time.Time        `json:"created_at"`
