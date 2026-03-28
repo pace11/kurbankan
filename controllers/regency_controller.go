@@ -11,7 +11,7 @@ type RegencyController struct {
 	Repo repository.RegencyRepository
 }
 
-func NewRegencyRepository(repo repository.RegencyRepository) *RegencyController {
+func NewRegencyController(repo repository.RegencyRepository) *RegencyController {
 	return &RegencyController{Repo: repo}
 }
 

@@ -9,76 +9,78 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-type QurbanOptionRepository interface {
-	Index(c *gin.Context, filters map[string]any) ([]models.QurbanOptionResponse, int, any, int64, int, int)
-	Save(qurbanoption *models.QurbanOption) (any, int, string, map[string]string)
-	Update(id uint, qurbanoption *models.QurbanOption) (any, int, string, map[string]string)
+type QurbanOfferingRepository interface {
+	Index(c *gin.Context, filters map[string]any) ([]models.QurbanOfferingResponse, int, any, int64, int, int)
+	Save(qurbanOffering *models.QurbanOffering) (any, int, string, map[string]string)
+	Update(id uint, qurbanOffering *models.QurbanOffering) (any, int, string, map[string]string)
 	Delete(id uint) (any, int, string, map[string]string)
 }
 
-type qurbanOptionRepo struct{}
+type qurbanOfferingRepo struct{}
 
-func NewQurbanOptionRepository() QurbanOptionRepository {
-	return &qurbanOptionRepo{}
+func NewQurbanOfferingRepository() QurbanOfferingRepository {
+	return &qurbanOfferingRepo{}
 }
 
-func (r *qurbanOptionRepo) Index(c *gin.Context, filters map[string]any) ([]models.QurbanOptionResponse, int, any, int64, int, int) {
-	var qurbanOptions []models.QurbanOption
+func (r *qurbanOfferingRepo) Index(c *gin.Context, filters map[string]any) ([]models.QurbanOfferingResponse, int, any, int64, int, int) {
+	var qurbanOfferings []models.QurbanOffering
 	var total int64
 
-	query := utils.FilterByParams(config.DB.Model(&models.QurbanOption{}), filters)
+	query := utils.FilterByParams(config.DB.Model(&models.QurbanOffering{}), filters)
 	query.Count(&total)
 
 	paginatedQuery, page, limit := utils.ApplyPagination(c, query)
-	paginatedQuery.Find(&qurbanOptions)
+	paginatedQuery.Find(&qurbanOfferings)
 
-	var response []models.QurbanOptionResponse
-	for _, q := range qurbanOptions {
-		response = append(response, models.QurbanOptionResponse{
+	var response []models.QurbanOfferingResponse
+	for _, q := range qurbanOfferings {
+		response = append(response, models.QurbanOfferingResponse{
 			ID:             q.ID,
 			QurbanPeriodID: q.QurbanPeriodID,
 			AnimalType:     q.AnimalType,
 			SchemeType:     q.SchemeType,
 			Price:          q.Price,
-			Slots:          q.Slots,
+			Capacity:       q.Capacity,
+			FilledSlots:    q.FilledSlots,
 			CreatedAt:      q.CreatedAt,
 			UpdatedAt:      q.UpdatedAt,
 		})
 	}
 
-	return response, http.StatusOK, "qurban option", total, page, limit
+	return response, http.StatusOK, "qurban offering", total, page, limit
 }
 
-func (r *qurbanOptionRepo) Save(qurbanoption *models.QurbanOption) (any, int, string, map[string]string) {
-	if err := config.DB.Create(qurbanoption).Error; err != nil {
-		return nil, http.StatusInternalServerError, "qurban option", nil
+func (r *qurbanOfferingRepo) Save(qurbanOffering *models.QurbanOffering) (any, int, string, map[string]string) {
+	if err := config.DB.Create(qurbanOffering).Error; err != nil {
+		return nil, http.StatusInternalServerError, "qurban offering", nil
 	}
 
-	return qurbanoption, http.StatusCreated, "qurban option", nil
+	return qurbanOffering, http.StatusCreated, "qurban offering", nil
 }
 
-func (r *qurbanOptionRepo) Update(id uint, qurbanoption *models.QurbanOption) (any, int, string, map[string]string) {
-	var existing models.QurbanOption
+func (r *qurbanOfferingRepo) Update(id uint, qurbanOffering *models.QurbanOffering) (any, int, string, map[string]string) {
+	var existing models.QurbanOffering
 
 	if err := config.DB.First(&existing, id).Error; err != nil {
-		return nil, http.StatusNotFound, "qurban option", nil
+		return nil, http.StatusNotFound, "qurban offering", nil
 	}
 
 	if err := config.DB.Model(&existing).Updates(map[string]any{
-		"qurban_period_id": qurbanoption.QurbanPeriodID,
-		"animal_type":      qurbanoption.AnimalType,
-		"scheme_type":      qurbanoption.SchemeType,
-		"price":            qurbanoption.Price,
-		"slots":            qurbanoption.Slots,
+		"qurban_period_id": qurbanOffering.QurbanPeriodID,
+		"animal_type":      qurbanOffering.AnimalType,
+		"scheme_type":      qurbanOffering.SchemeType,
+		"price":            qurbanOffering.Price,
+		"capacity":         qurbanOffering.Capacity,
+		"filled_slots":     qurbanOffering.FilledSlots,
 	}).Error; err != nil {
-		return nil, http.StatusInternalServerError, "qurban option", nil
+		return nil, http.StatusInternalServerError, "qurban offering", nil
 	}
 
-	return qurbanoption, http.StatusOK, "qurban option", nil
+	return qurbanOffering, http.StatusOK, "qurban offering", nil
 }
 
-func (r *qurbanOptionRepo) Delete(id uint) (any, int, string, map[string]string) {
-	result := config.DB.Delete(&models.QurbanOption{}, id)
+func (r *qurbanOfferingRepo) Delete(id uint) (any, int, string, map[string]string) {
+	result := config.DB.Delete(&models.QurbanOffering{}, id)
 
 	if result.Error != nil {
 		return nil, http.StatusInternalServerError, "qurban option", nil

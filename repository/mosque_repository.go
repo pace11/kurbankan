@@ -12,8 +12,8 @@ import (
 type MosqueRepository interface {
 	Index(c *gin.Context, filters map[string]any) ([]models.MosqueResponse, int, any, int64, int, int)
 	Show(id uint) (*models.MosqueResponse, int, string, map[string]string)
-	Save(mosque *models.UserCreateDTO) (any, int, string, map[string]string)
-	Update(id uint, mosque *models.UserUpdateDTO) (any, int, string, map[string]string)
+	Save(mosque *models.UserCreatePayload) (any, int, string, map[string]string)
+	Update(id uint, mosque *models.UserUpdatePayload) (any, int, string, map[string]string)
 	Delete(id uint) (any, int, string, map[string]string)
 }
 
@@ -77,7 +77,7 @@ func (r *mosqueRepository) Show(id uint) (*models.MosqueResponse, int, string, m
 	return response, http.StatusOK, "mosque", nil
 }
 
-func (r *mosqueRepository) Save(mosque *models.UserCreateDTO) (any, int, string, map[string]string) {
+func (r *mosqueRepository) Save(mosque *models.UserCreatePayload) (any, int, string, map[string]string) {
 	tx := config.DB.Begin()
 
 	hashed, err := utils.HashPassword(mosque.Password)
@@ -119,7 +119,7 @@ func (r *mosqueRepository) Save(mosque *models.UserCreateDTO) (any, int, string,
 	return mosque, http.StatusCreated, "mosque", nil
 }
 
-func (r *mosqueRepository) Update(id uint, mosque *models.UserUpdateDTO) (any, int, string, map[string]string) {
+func (r *mosqueRepository) Update(id uint, mosque *models.UserUpdatePayload) (any, int, string, map[string]string) {
 	var existing models.Mosque
 	var userToUpdate models.User
 

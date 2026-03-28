@@ -25,6 +25,7 @@ var seedFiles = map[string]string{
 	"districts":  "database/seeds/001_202603003_districts.sql",
 	"villages_1": "database/seeds/001_202603004_villages_1.sql",
 	"villages_2": "database/seeds/001_202603005_villages_2.sql",
+	"banks":      "database/seeds/001_202603006_banks.sql",
 }
 
 var seedOrder = []string{
@@ -33,6 +34,7 @@ var seedOrder = []string{
 	"districts",
 	"villages_1",
 	"villages_2",
+	"banks",
 }
 
 // GetSeederStatus checks the status of seeded data
@@ -51,7 +53,7 @@ func (sc *SeederController) GetSeederStatus(c *gin.Context) {
 		HasData bool   `json:"has_data"`
 	}
 
-	tables := []string{"provinces", "regencies", "districts", "villages"}
+	tables := []string{"provinces", "regencies", "districts", "villages", "banks"}
 	statuses := []TableStatus{}
 
 	for _, table := range tables {

@@ -11,7 +11,7 @@ type ProvinceController struct {
 	Repo repository.ProvinceRepository
 }
 
-func NewProvinceRepository(repo repository.ProvinceRepository) *ProvinceController {
+func NewProvinceController(repo repository.ProvinceRepository) *ProvinceController {
 	return &ProvinceController{Repo: repo}
 }
 

@@ -10,7 +10,7 @@ import (
 )
 
 type UserRepository interface {
-	Index(c *gin.Context, filters map[string]any) ([]models.UserListResponse, int, any, int64, int, int)
+	Index(c *gin.Context, filters map[string]any) ([]models.UserResponse, int, any, int64, int, int)
 	Update(id uint, user *models.User) (any, int, string, map[string]string)
 }
 
@@ -20,7 +20,7 @@ func NewUserRepository() UserRepository {
 	return &userRepo{}
 }
 
-func (r *userRepo) Index(c *gin.Context, filters map[string]any) ([]models.UserListResponse, int, any, int64, int, int) {
+func (r *userRepo) Index(c *gin.Context, filters map[string]any) ([]models.UserResponse, int, any, int64, int, int) {
 	var users []models.User
 	var total int64
 
@@ -30,14 +30,14 @@ func (r *userRepo) Index(c *gin.Context, filters map[string]any) ([]models.UserL
 	paginatedQuery, page, limit := utils.ApplyPagination(c, query)
 	paginatedQuery.Find(&users)
 
-	var response []models.UserListResponse
+	var response []models.UserResponse
 	for _, u := range users {
-		response = append(response, models.UserListResponse{
+		response = append(response, models.UserResponse{
 			ID:        u.ID,
 			Email:     u.Email,
 			Role:      u.Role,
-			CreatedAt: u.CreatedAt,
-			UpdatedAt: u.UpdatedAt,
+			CreatedAt: &u.CreatedAt,
+			UpdatedAt: &u.UpdatedAt,
 		})
 	}
 

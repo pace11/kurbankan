@@ -8,7 +8,7 @@ import (
 )
 
 type LoginRepository interface {
-	Login(login *models.LoginDTO) (any, int, string, map[string]string)
+	Login(login *models.LoginPayload) (any, int, string, map[string]string)
 }
 
 type loginRepository struct{}
@@ -17,7 +17,7 @@ func NewLoginRepository() LoginRepository {
 	return &loginRepository{}
 }
 
-func (r *loginRepository) Login(login *models.LoginDTO) (any, int, string, map[string]string) {
+func (r *loginRepository) Login(login *models.LoginPayload) (any, int, string, map[string]string) {
 	var user models.User
 
 	if err := config.DB.Where("email = ?", login.Email).First(&user).Error; err != nil {
@@ -36,7 +36,7 @@ func (r *loginRepository) Login(login *models.LoginDTO) (any, int, string, map[s
 	userResponse := models.UserResponse{
 		ID:    user.ID,
 		Email: user.Email,
-		Role:  string(user.Role),
+		Role:  user.Role,
 	}
 
 	response := map[string]any{

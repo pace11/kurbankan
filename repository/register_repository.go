@@ -8,8 +8,8 @@ import (
 )
 
 type RegisterRepository interface {
-	SaveParticipant(participant *models.UserCreateDTO) (any, int, string, map[string]string)
-	SaveMosque(mosque *models.UserCreateDTO) (any, int, string, map[string]string)
+	SaveParticipant(participant *models.UserCreatePayload) (any, int, string, map[string]string)
+	SaveMosque(mosque *models.UserCreatePayload) (any, int, string, map[string]string)
 }
 
 type registerRepository struct{}
@@ -18,7 +18,7 @@ func NewRegisterRepository() RegisterRepository {
 	return &registerRepository{}
 }
 
-func (r *registerRepository) SaveParticipant(participant *models.UserCreateDTO) (any, int, string, map[string]string) {
+func (r *registerRepository) SaveParticipant(participant *models.UserCreatePayload) (any, int, string, map[string]string) {
 	tx := config.DB.Begin()
 
 	hashed, err := utils.HashPassword(participant.Password)
@@ -39,13 +39,15 @@ func (r *registerRepository) SaveParticipant(participant *models.UserCreateDTO) 
 	}
 
 	participantCreate := models.Participant{
-		UserID:       userToCreate.ID,
-		Name:         participant.Name,
-		Address:      participant.Address,
-		ProvinceCode: participant.ProvinceCode,
-		RegencyCode:  participant.RegencyCode,
-		DistrictCode: participant.DistrictCode,
-		VillageCode:  participant.VillageCode,
+		UserID:          userToCreate.ID,
+		CreatedByUserID: userToCreate.ID,
+		Name:            participant.Name,
+		Gender:          participant.Gender,
+		Address:         participant.Address,
+		ProvinceCode:    participant.ProvinceCode,
+		RegencyCode:     participant.RegencyCode,
+		DistrictCode:    participant.DistrictCode,
+		VillageCode:     participant.VillageCode,
 	}
 
 	if err := tx.Save(&participantCreate).Error; err != nil {
@@ -60,7 +62,7 @@ func (r *registerRepository) SaveParticipant(participant *models.UserCreateDTO) 
 	return participant, http.StatusCreated, "participant", nil
 }
 
-func (r *registerRepository) SaveMosque(mosque *models.UserCreateDTO) (any, int, string, map[string]string) {
+func (r *registerRepository) SaveMosque(mosque *models.UserCreatePayload) (any, int, string, map[string]string) {
 	tx := config.DB.Begin()
 
 	hashed, err := utils.HashPassword(mosque.Password)

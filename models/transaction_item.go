@@ -17,18 +17,34 @@ const (
 	VA PaymentType = "VA"
 )
 
-type TransactionItem struct {
-	ID            uint              `json:"id" gorm:"primaryKey"`
+type TransactionItemResponse struct {
+	ID            uint              `json:"id"`
 	TransactionID uint              `json:"transaction_id"`
 	ParticipantID uint              `json:"participant_id"`
 	Amount        float64           `json:"amount"`
-	Status        TransactionStatus `json:"status" gorm:"type:varchar(20);default:'pending'"`
-	PaymentType   PaymentType       `json:"payment_type" gorm:"type:varchar(20);default:'VA'"`
+	Status        TransactionStatus `json:"status"`
+	PaymentType   PaymentType       `json:"payment_type"`
 	ExternalID    string            `json:"external_id"`
 	PaidAt        *time.Time        `json:"paid_at"`
 	CreatedAt     time.Time         `json:"created_at"`
 	UpdatedAt     time.Time         `json:"updated_at"`
-	DeletedAt     gorm.DeletedAt    `json:"deleted_at" gorm:"index"`
+}
+
+type TransactionItem struct {
+	ID uint `json:"id" gorm:"primaryKey"`
+
+	TransactionID uint `json:"transaction_id"`
+	ParticipantID uint `json:"participant_id"`
+
+	Amount      float64           `json:"amount"`
+	Status      TransactionStatus `json:"status" gorm:"type:varchar(20);default:'pending'"`
+	PaymentType PaymentType       `json:"payment_type" gorm:"type:varchar(20);default:'VA'"`
+	ExternalID  string            `json:"external_id"`
+
+	PaidAt    *time.Time     `json:"paid_at"`
+	CreatedAt time.Time      `json:"created_at"`
+	UpdatedAt time.Time      `json:"updated_at"`
+	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
 
 	Transaction *Transaction `json:"transaction" gorm:"foreignKey:TransactionID"`
 	Participant *Participant `json:"participant" gorm:"foreignKey:ParticipantID"`

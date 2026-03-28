@@ -59,9 +59,9 @@ func (mc *MigrationController) RunMigration(c *gin.Context) {
 		// Participant models
 		&models.Participant{},
 
-		// Qurban Period & Options
+		// Qurban Period & Offerings
 		&models.QurbanPeriod{},
-		&models.QurbanOption{},
+		&models.QurbanOffering{},
 
 		// Qurban Animals
 		&models.QurbanAnimal{},
@@ -243,7 +243,7 @@ func (mc *MigrationController) DropAllTables(c *gin.Context) {
 		&models.Beneficiary{},
 		&models.TransactionItem{},
 		&models.Transaction{},
-		&models.QurbanOption{},
+		&models.QurbanOffering{},
 		&models.QurbanPeriod{},
 		&models.MosqueMember{},
 		&models.Participant{},

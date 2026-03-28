@@ -12,7 +12,7 @@ import (
 
 type TransactionRepository interface {
 	Index(c *gin.Context) ([]models.TransactionResponse, int, any, int64, int, int)
-	Save(transaction *models.TransactionDTO) (any, int, string, map[string]string)
+	Save(transaction *models.TransactionPayload) (any, int, string, map[string]string)
 }
 
 type transactionRepo struct{}
@@ -34,39 +34,39 @@ func (r *transactionRepo) Index(c *gin.Context) ([]models.TransactionResponse, i
 	var response []models.TransactionResponse
 	for _, t := range transactions {
 		response = append(response, models.TransactionResponse{
-			ID:           t.ID,
-			IsFull:       t.IsFull,
-			CreatedAt:    t.CreatedAt,
-			UpdatedAt:    t.UpdatedAt,
-			Mosque:       t.Mosque,
-			QurbanPeriod: t.QurbanPeriod,
-			QurbanOption: t.QurbanOption,
+			ID:             t.ID,
+			IsFull:         t.IsFull,
+			CreatedAt:      t.CreatedAt,
+			UpdatedAt:      t.UpdatedAt,
+			Mosque:         t.Mosque,
+			QurbanPeriod:   t.QurbanPeriod,
+			QurbanOffering: t.QurbanOffering,
 		})
 	}
 
 	return response, http.StatusOK, "transaction", total, page, limit
 }
 
-func (r *transactionRepo) Save(transaction *models.TransactionDTO) (any, int, string, map[string]string) {
-	var qurbanOption models.QurbanOption
+func (r *transactionRepo) Save(transaction *models.TransactionPayload) (any, int, string, map[string]string) {
+	var qurbanOffering models.QurbanOffering
 
-	if err := config.DB.First(&qurbanOption, transaction.QurbanOptionID).Error; err != nil {
-		return nil, http.StatusNotFound, "qurban option", nil
+	if err := config.DB.First(&qurbanOffering, transaction.QurbanOfferingID).Error; err != nil {
+		return nil, http.StatusNotFound, "qurban offering", nil
 	}
 
 	transactionData := models.Transaction{
-		QurbanPeriodID: qurbanOption.QurbanPeriodID,
-		MosqueID:       transaction.MosqueID,
-		QurbanOptionID: transaction.QurbanOptionID,
-		CreatedAt:      time.Now(),
-		UpdatedAt:      time.Now(),
+		QurbanPeriodID:   qurbanOffering.QurbanPeriodID,
+		MosqueID:         transaction.MosqueID,
+		QurbanOfferingID: transaction.QurbanOfferingID,
+		CreatedAt:        time.Now(),
+		UpdatedAt:        time.Now(),
 	}
 
-	if qurbanOption.AnimalType == models.Cow && qurbanOption.SchemeType == models.Group {
+	if qurbanOffering.AnimalType == models.Cow && qurbanOffering.SchemeType == models.Group {
 		var itemCount int64
 		config.DB.Model(&models.TransactionItem{}).
 			Joins("JOIN transactions ON transaction_items.transaction_id = transactions.id").
-			Where("transactions.qurban_option_id = ? AND transaction_items.status != ?", qurbanOption.ID, models.Cancelled).
+			Where("transactions.qurban_offering_id = ? AND transaction_items.status != ?", qurbanOffering.ID, models.Cancelled).
 			Count(&itemCount)
 	} else {
 		transactionData.IsFull = true

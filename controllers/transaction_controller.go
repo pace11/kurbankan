@@ -22,7 +22,7 @@ func (ctl *TransactionController) GetTransactions(c *gin.Context) {
 }
 
 func (ctl *TransactionController) CreateTransaction(c *gin.Context) {
-	var transaction models.TransactionDTO
+	var transaction models.TransactionPayload
 
 	if utils.BindAndValidate(c, &transaction) != nil {
 		return

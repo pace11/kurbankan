@@ -11,7 +11,7 @@ type VillageController struct {
 	Repo repository.VillageRepository
 }
 
-func NewVillageRepository(repo repository.VillageRepository) *VillageController {
+func NewVillageController(repo repository.VillageRepository) *VillageController {
 	return &VillageController{Repo: repo}
 }
 

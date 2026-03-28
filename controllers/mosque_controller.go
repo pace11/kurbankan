@@ -14,7 +14,7 @@ type MosqueController struct {
 	Repo repository.MosqueRepository
 }
 
-func NewMosqueRepository(repo repository.MosqueRepository) *MosqueController {
+func NewMosqueController(repo repository.MosqueRepository) *MosqueController {
 	return &MosqueController{Repo: repo}
 }
 
@@ -45,7 +45,7 @@ func (ctl *MosqueController) GetMosque(c *gin.Context) {
 }
 
 func (ctl *MosqueController) CreateMosque(c *gin.Context) {
-	var mosque models.UserCreateDTO
+	var mosque models.UserCreatePayload
 
 	if utils.BindAndValidate(c, &mosque) != nil {
 		return
@@ -57,7 +57,7 @@ func (ctl *MosqueController) CreateMosque(c *gin.Context) {
 
 func (ctl *MosqueController) UpdateMosque(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	var mosque models.UserUpdateDTO
+	var mosque models.UserUpdatePayload
 
 	if utils.BindAndValidate(c, &mosque) != nil {
 		return

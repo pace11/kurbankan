@@ -17,7 +17,7 @@ func NewRegisterController(repo repository.RegisterRepository) *RegisterControll
 }
 
 func (ctl *RegisterController) RegisterParticipant(c *gin.Context) {
-	var payload models.UserCreateDTO
+	var payload models.UserCreatePayload
 
 	if utils.BindAndValidate(c, &payload) != nil {
 		return
@@ -28,7 +28,7 @@ func (ctl *RegisterController) RegisterParticipant(c *gin.Context) {
 }
 
 func (ctl *RegisterController) RegisterMosque(c *gin.Context) {
-	var payload models.UserCreateDTO
+	var payload models.UserCreatePayload
 
 	if utils.BindAndValidate(c, &payload) != nil {
 		return

@@ -11,7 +11,7 @@ type DistrictController struct {
 	Repo repository.DistrictRepository
 }
 
-func NewDistrictRepository(repo repository.DistrictRepository) *DistrictController {
+func NewDistrictController(repo repository.DistrictRepository) *DistrictController {
 	return &DistrictController{Repo: repo}
 }
 

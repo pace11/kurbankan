@@ -17,7 +17,7 @@ func NewLoginController(repo repository.LoginRepository) *LoginController {
 }
 
 func (ctl *LoginController) Login(c *gin.Context) {
-	var payload models.LoginDTO
+	var payload models.LoginPayload
 
 	if utils.BindAndValidate(c, &payload) != nil {
 		return

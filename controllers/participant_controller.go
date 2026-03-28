@@ -14,7 +14,7 @@ type ParticipantController struct {
 	Repo repository.ParticipantRepository
 }
 
-func NewParticipantRepository(repo repository.ParticipantRepository) *ParticipantController {
+func NewParticipantController(repo repository.ParticipantRepository) *ParticipantController {
 	return &ParticipantController{Repo: repo}
 }
 
@@ -46,7 +46,7 @@ func (ctl *ParticipantController) GetParticipant(c *gin.Context) {
 
 func (ctl *ParticipantController) UpdateParticipant(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
-	var participant models.UserUpdateDTO
+	var participant models.UserUpdatePayload
 
 	if utils.BindAndValidate(c, &participant) != nil {
 		return

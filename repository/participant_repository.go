@@ -12,7 +12,7 @@ import (
 type ParticipantRepository interface {
 	Index(c *gin.Context, filters map[string]any) ([]models.ParticipantResponse, int, any, int64, int, int)
 	Show(id uint) (*models.ParticipantResponse, int, string, map[string]string)
-	Update(id uint, participant *models.UserUpdateDTO) (any, int, string, map[string]string)
+	Update(id uint, participant *models.UserUpdatePayload) (any, int, string, map[string]string)
 	Delete(id uint) (any, int, string, map[string]string)
 }
 
@@ -73,7 +73,7 @@ func (r *participantRepository) Show(id uint) (*models.ParticipantResponse, int,
 	return response, http.StatusOK, "participant", nil
 }
 
-func (r *participantRepository) Update(id uint, participant *models.UserUpdateDTO) (any, int, string, map[string]string) {
+func (r *participantRepository) Update(id uint, participant *models.UserUpdatePayload) (any, int, string, map[string]string) {
 	var existing models.Participant
 	var userToUpdate models.User
 

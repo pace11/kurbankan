@@ -12,14 +12,14 @@ func SetupRoutes(r *gin.Engine) {
 
 	// controllers
 	QurbanPeriodController := controllers.NewQurbanPeriodController(repository.NewQurbanPeriodRepository())
-	QurbanOptionController := controllers.NewQurbanOptionController(repository.NewQurbanOptionRepository())
+	QurbanOfferingController := controllers.NewQurbanOfferingController(repository.NewQurbanOfferingRepository())
 	UserController := controllers.NewUserController(repository.NewUserRepository())
-	MosqueController := controllers.NewMosqueRepository(repository.NewMosqueRepository())
-	ParticipantController := controllers.NewParticipantRepository(repository.NewParticipantRepository())
-	ProvinceController := controllers.NewProvinceRepository(repository.NewProvinceRepository())
-	RegencyController := controllers.NewRegencyRepository(repository.NewRegencyRepository())
-	DistrictController := controllers.NewDistrictRepository(repository.NewDistrictRepository())
-	VillageController := controllers.NewVillageRepository(repository.NewVillageRepository())
+	MosqueController := controllers.NewMosqueController(repository.NewMosqueRepository())
+	ParticipantController := controllers.NewParticipantController(repository.NewParticipantRepository())
+	ProvinceController := controllers.NewProvinceController(repository.NewProvinceRepository())
+	RegencyController := controllers.NewRegencyController(repository.NewRegencyRepository())
+	DistrictController := controllers.NewDistrictController(repository.NewDistrictRepository())
+	VillageController := controllers.NewVillageController(repository.NewVillageRepository())
 	BeneficiaryController := controllers.NewBeneficiaryController(repository.NewBeneficiaryRepository())
 	RegisterController := controllers.NewRegisterController(repository.NewRegisterRepository())
 	LoginController := controllers.NewLoginController(repository.NewLoginRepository())
@@ -64,11 +64,11 @@ func SetupRoutes(r *gin.Engine) {
 	api.PATCH("/qurban-period/:id", QurbanPeriodController.UpdateQurbanPeriod)
 	api.DELETE("/qurban-period/:id", QurbanPeriodController.DeleteQurbanPeriod)
 
-	// qurban-options
-	api.GET("/qurban-options", QurbanOptionController.GetQurbanOptions)
-	api.POST("/qurban-option", QurbanOptionController.CreateQurbanOption)
-	api.PATCH("/qurban-option/:id", QurbanOptionController.UpdateQurbanOption)
-	api.DELETE("/qurban-option/:id", QurbanOptionController.DeleteQurbanPeriod)
+	// qurban-offerings
+	api.GET("/qurban-offerings", QurbanOfferingController.GetQurbanOfferings)
+	api.POST("/qurban-offering", QurbanOfferingController.CreateQurbanOffering)
+	api.PATCH("/qurban-offering/:id", QurbanOfferingController.UpdateQurbanOffering)
+	api.DELETE("/qurban-offering/:id", QurbanOfferingController.DeleteQurbanOffering)
 
 	// users
 	api.GET("/users", UserController.GetUsers)
