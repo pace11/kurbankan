@@ -102,7 +102,6 @@ func (r *participantRepository) Update(id uint, participant *models.UserUpdatePa
 	if err := tx.Model(&userToUpdate).Updates(map[string]any{
 		"email":    participant.Email,
 		"password": participant.Password,
-		"role":     models.UserRole(*participant.Role),
 	}).Error; err != nil {
 		tx.Rollback()
 		return nil, http.StatusInternalServerError, "participant", nil

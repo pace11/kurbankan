@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"fmt"
 	"kurbankan/config"
 	"kurbankan/models"
 	"kurbankan/utils"
@@ -50,6 +51,7 @@ func (r *qurbanPeriodRepo) Index(c *gin.Context, filters map[string]any) ([]mode
 
 func (r *qurbanPeriodRepo) Save(qurbanperiod *models.QurbanPeriod) (any, int, string, map[string]string) {
 	if err := config.DB.Create(qurbanperiod).Error; err != nil {
+		fmt.Println("Error creating qurban period:", err)
 		return nil, http.StatusInternalServerError, "qurban period", nil
 	}
 
@@ -72,7 +74,7 @@ func (r *qurbanPeriodRepo) Update(id uint, qurbanperiod *models.QurbanPeriod) (a
 		return nil, http.StatusInternalServerError, "qurban period", nil
 	}
 
-	return qurbanperiod, http.StatusOK, "qurban period", nil
+	return &existing, http.StatusOK, "qurban period", nil
 }
 
 func (r *qurbanPeriodRepo) Delete(id uint) (any, int, string, map[string]string) {

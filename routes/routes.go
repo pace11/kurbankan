@@ -2,7 +2,6 @@ package routes
 
 import (
 	"kurbankan/controllers"
-	"kurbankan/middlewares"
 	"kurbankan/repository"
 
 	"github.com/gin-gonic/gin"
@@ -20,6 +19,7 @@ func SetupRoutes(r *gin.Engine) {
 	RegencyController := controllers.NewRegencyController(repository.NewRegencyRepository())
 	DistrictController := controllers.NewDistrictController(repository.NewDistrictRepository())
 	VillageController := controllers.NewVillageController(repository.NewVillageRepository())
+	BankController := controllers.NewBankController(repository.NewBankRepository())
 	BeneficiaryController := controllers.NewBeneficiaryController(repository.NewBeneficiaryRepository())
 	RegisterController := controllers.NewRegisterController(repository.NewRegisterRepository())
 	LoginController := controllers.NewLoginController(repository.NewLoginRepository())
@@ -53,48 +53,51 @@ func SetupRoutes(r *gin.Engine) {
 	area.GET("/districts", DistrictController.GetDistricts)
 	area.GET("/villages", VillageController.GetVillages)
 
+	// constant data
+	api.GET("/constants/banks", BankController.GetBanks)
+
 	// xendit virtual account
 	api.POST("/xendit/va-callback", controllers.XenditVAWebhookHandler)
 
-	api.Use(middlewares.JWTAuthMiddleware())
+	// api.Use(middlewares.JWTAuthMiddleware())
 
 	// qurban-periods
 	api.GET("/qurban-periods", QurbanPeriodController.GetQurbanPeriods)
-	api.POST("/qurban-period", QurbanPeriodController.CreateQurbanPeriod)
-	api.PATCH("/qurban-period/:id", QurbanPeriodController.UpdateQurbanPeriod)
-	api.DELETE("/qurban-period/:id", QurbanPeriodController.DeleteQurbanPeriod)
+	api.POST("/qurban-periods", QurbanPeriodController.CreateQurbanPeriod)
+	api.PATCH("/qurban-periods/:id", QurbanPeriodController.UpdateQurbanPeriod)
+	api.DELETE("/qurban-periods/:id", QurbanPeriodController.DeleteQurbanPeriod)
 
 	// qurban-offerings
 	api.GET("/qurban-offerings", QurbanOfferingController.GetQurbanOfferings)
-	api.POST("/qurban-offering", QurbanOfferingController.CreateQurbanOffering)
-	api.PATCH("/qurban-offering/:id", QurbanOfferingController.UpdateQurbanOffering)
-	api.DELETE("/qurban-offering/:id", QurbanOfferingController.DeleteQurbanOffering)
+	api.POST("/qurban-offerings", QurbanOfferingController.CreateQurbanOffering)
+	api.PATCH("/qurban-offerings/:id", QurbanOfferingController.UpdateQurbanOffering)
+	api.DELETE("/qurban-offerings/:id", QurbanOfferingController.DeleteQurbanOffering)
 
 	// users
 	api.GET("/users", UserController.GetUsers)
-	api.PATCH("/user/:id", UserController.UpdateUser)
+	api.PATCH("/users/:id", UserController.UpdateUser)
 
 	// mosques
 	api.GET("/mosques", MosqueController.GetMosques)
-	api.GET("/mosque/:id", MosqueController.GetMosque)
-	api.POST("/mosque", MosqueController.CreateMosque)
-	api.PATCH("/mosque/:id", MosqueController.UpdateMosque)
-	api.DELETE("/mosque/:id", MosqueController.DeleteMosque)
+	api.GET("/mosques/:id", MosqueController.GetMosque)
+	api.POST("/mosques", MosqueController.CreateMosque)
+	api.PATCH("/mosques/:id", MosqueController.UpdateMosque)
+	api.DELETE("/mosques/:id", MosqueController.DeleteMosque)
 
 	// participants
 	api.GET("/participants", ParticipantController.GetParticipants)
-	api.GET("/participant/:id", ParticipantController.GetParticipant)
-	api.PATCH("/participant/:id", ParticipantController.UpdateParticipant)
-	api.DELETE("/participant/:id", ParticipantController.DeleteParticipant)
+	api.GET("/participants/:id", ParticipantController.GetParticipant)
+	api.PATCH("/participants/:id", ParticipantController.UpdateParticipant)
+	api.DELETE("/participants/:id", ParticipantController.DeleteParticipant)
 
 	// beneficiaries
 	api.GET("/beneficiaries", BeneficiaryController.GetBeneficiaries)
-	api.GET("/beneficiary/:id", BeneficiaryController.GetBeneficiary)
-	api.POST("/beneficiary", BeneficiaryController.CreateBeneficiary)
-	api.PATCH("/beneficiary/:id", BeneficiaryController.UpdateBeneficiary)
-	api.DELETE("/beneficiary/:id", BeneficiaryController.DeleteBeneficiary)
+	api.GET("/beneficiaries/:id", BeneficiaryController.GetBeneficiary)
+	api.POST("/beneficiaries", BeneficiaryController.CreateBeneficiary)
+	api.PATCH("/beneficiaries/:id", BeneficiaryController.UpdateBeneficiary)
+	api.DELETE("/beneficiaries/:id", BeneficiaryController.DeleteBeneficiary)
 
 	// transactions
 	api.GET("/transactions", TransactionController.GetTransactions)
-	api.POST("/transaction", TransactionController.CreateTransaction)
+	api.POST("/transactions", TransactionController.CreateTransaction)
 }

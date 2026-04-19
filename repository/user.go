@@ -33,11 +33,11 @@ func (r *userRepo) Index(c *gin.Context, filters map[string]any) ([]models.UserR
 	var response []models.UserResponse
 	for _, u := range users {
 		response = append(response, models.UserResponse{
-			ID:        u.ID,
-			Email:     u.Email,
-			Role:      u.Role,
-			CreatedAt: &u.CreatedAt,
-			UpdatedAt: &u.UpdatedAt,
+			ID:           u.ID,
+			Email:        u.Email,
+			PlatformRole: u.PlatformRole,
+			CreatedAt:    &u.CreatedAt,
+			UpdatedAt:    &u.UpdatedAt,
 		})
 	}
 
@@ -60,8 +60,8 @@ func (r *userRepo) Update(id uint, user *models.User) (any, int, string, map[str
 	}
 
 	if err := config.DB.Model(&existing).Updates(map[string]any{
-		"email": user.Email,
-		"role":  user.Role,
+		"email":         user.Email,
+		"platform_role": user.PlatformRole,
 	}).Error; err != nil {
 		return nil, http.StatusInternalServerError, "user", nil
 	}

@@ -30,7 +30,6 @@ func (r *registerRepository) SaveParticipant(participant *models.UserCreatePaylo
 	userToCreate := models.User{
 		Email:    participant.Email,
 		Password: hashed,
-		Role:     models.RoleUserMember,
 	}
 
 	if err := tx.Save(&userToCreate).Error; err != nil {
@@ -74,7 +73,6 @@ func (r *registerRepository) SaveMosque(mosque *models.UserCreatePayload) (any, 
 	userToCreate := models.User{
 		Email:    mosque.Email,
 		Password: hashed,
-		Role:     models.RoleMosqueMember,
 	}
 
 	if err := tx.Save(&userToCreate).Error; err != nil {

@@ -49,6 +49,9 @@ func (mc *MigrationController) RunMigration(c *gin.Context) {
 		&models.District{},
 		&models.Village{},
 
+		// Constant data models
+		&models.Bank{},
+
 		// User & Auth models
 		&models.User{},
 
@@ -96,12 +99,13 @@ func (mc *MigrationController) RunMigration(c *gin.Context) {
 		"regencies",
 		"districts",
 		"villages",
+		"banks",
 		"users",
 		"mosques",
 		"mosque_members",
 		"participants",
 		"qurban_periods",
-		"qurban_options",
+		"qurban_offerings",
 		"qurban_animals",
 		"animal_participants",
 		"animal_media",
@@ -141,12 +145,13 @@ func (mc *MigrationController) CheckMigrationStatus(c *gin.Context) {
 		"regencies",
 		"districts",
 		"villages",
+		"banks",
 		"users",
 		"mosques",
 		"mosque_members",
 		"participants",
 		"qurban_periods",
-		"qurban_options",
+		"qurban_offerings",
 		"qurban_animals",
 		"animal_participants",
 		"animal_media",
@@ -253,6 +258,7 @@ func (mc *MigrationController) DropAllTables(c *gin.Context) {
 		&models.District{},
 		&models.Regency{},
 		&models.Province{},
+		&models.Bank{},
 	}
 
 	droppedTables := []string{}

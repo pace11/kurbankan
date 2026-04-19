@@ -89,7 +89,6 @@ func (r *mosqueRepository) Save(mosque *models.UserCreatePayload) (any, int, str
 	userToCreate := models.User{
 		Email:    mosque.Email,
 		Password: hashed,
-		Role:     models.RoleMosqueMember,
 	}
 
 	if err := tx.Save(&userToCreate).Error; err != nil {
@@ -148,7 +147,6 @@ func (r *mosqueRepository) Update(id uint, mosque *models.UserUpdatePayload) (an
 	if err := tx.Model(&userToUpdate).Updates(map[string]any{
 		"email":    mosque.Email,
 		"password": mosque.Password,
-		"role":     models.UserRole(*mosque.Role),
 	}).Error; err != nil {
 		tx.Rollback()
 		return nil, http.StatusInternalServerError, "mosque", nil

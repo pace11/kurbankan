@@ -30,6 +30,7 @@ type QurbanOfferingResponse struct {
 	Price          float64          `json:"price"`
 	Capacity       int              `json:"capacity"`
 	FilledSlots    int              `json:"filled_slots"`
+	Status         QurbanStatus     `json:"status"`
 	CreatedAt      time.Time        `json:"created_at"`
 	UpdatedAt      time.Time        `json:"updated_at"`
 }

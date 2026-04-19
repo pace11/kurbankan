@@ -28,15 +28,15 @@ func (r *loginRepository) Login(login *models.LoginPayload) (any, int, string, m
 		return nil, http.StatusUnauthorized, "invalid credentials", nil
 	}
 
-	token, err := utils.GenerateToken(user.ID, user.Email, string(user.Role))
+	token, err := utils.GenerateToken(user.ID, user.Email, string(*user.PlatformRole))
 	if err != nil {
 		return nil, http.StatusInternalServerError, "generate token", nil
 	}
 
 	userResponse := models.UserResponse{
-		ID:    user.ID,
-		Email: user.Email,
-		Role:  user.Role,
+		ID:           user.ID,
+		Email:        user.Email,
+		PlatformRole: user.PlatformRole,
 	}
 
 	response := map[string]any{

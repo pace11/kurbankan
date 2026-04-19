@@ -6,7 +6,7 @@ func FilterByParams(db *gorm.DB, filters map[string]any) *gorm.DB {
 	for key, val := range filters {
 		if key == "name" {
 			if str, ok := val.(string); ok && str != "" {
-				db = db.Where("name LIKE ?", "%"+str+"%")
+				db = db.Where("name ILIKE ?", "%"+str+"%")
 			}
 		} else if str, ok := val.(string); ok && str != "" {
 			db = db.Where(key+" = ?", str)
