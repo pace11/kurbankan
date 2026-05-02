@@ -21,15 +21,30 @@ func (ctl *TransactionController) GetTransactions(c *gin.Context) {
 	utils.PaginatedResponse(c, data, code, entity, c.Request.Method, total, page, limit)
 }
 
-func (ctl *TransactionController) CreateTransaction(c *gin.Context) {
-	var transaction models.TransactionPayload
-
-	if utils.BindAndValidate(c, &transaction) != nil {
+func (ctl *TransactionController) GetTransactionsByMosqueID(ctx *gin.Context) {
+	mosque, err, code, entity, errors := utils.GetMosqueMemberByContext(ctx)
+	if err != nil {
+		utils.HttpResponse(ctx, nil, code, entity, ctx.Request.Method, errors)
 		return
 	}
 
+	data, statusCode, entityName, total, page, limit := ctl.Repo.IndexByMosqueID(ctx, mosque.UserID)
+	utils.PaginatedResponse(ctx, data, statusCode, entityName, ctx.Request.Method, total, page, limit)
+}
+
+func (ctl *TransactionController) CreateTransaction(ctx *gin.Context) {
+	var transaction models.TransactionCreatePayload
+
+	if utils.BindAndValidate(ctx, &transaction) != nil {
+		return
+	}
+
+	// Get user_id from JWT context
+	userID := ctx.GetUint("user_id")
+	transaction.CreatedByUserID = userID
+
 	data, code, entity, errors := ctl.Repo.Save(&transaction)
-	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
+	utils.HttpResponse(ctx, data, code, entity, ctx.Request.Method, errors)
 }
 
 // type CreateTransactionRequest struct {

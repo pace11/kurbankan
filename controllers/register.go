@@ -16,24 +16,24 @@ func NewRegisterController(repo repository.RegisterRepository) *RegisterControll
 	return &RegisterController{Repo: repo}
 }
 
-func (ctl *RegisterController) RegisterParticipant(c *gin.Context) {
+func (ctl *RegisterController) RegisterParticipant(ctx *gin.Context) {
 	var payload models.UserCreatePayload
 
-	if utils.BindAndValidate(c, &payload) != nil {
+	if utils.BindAndValidate(ctx, &payload) != nil {
 		return
 	}
 
 	data, code, entity, errors := ctl.Repo.SaveParticipant(&payload)
-	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
+	utils.HttpResponse(ctx, data, code, entity, ctx.Request.Method, errors)
 }
 
-func (ctl *RegisterController) RegisterMosque(c *gin.Context) {
+func (ctl *RegisterController) RegisterMosque(ctx *gin.Context) {
 	var payload models.UserCreatePayload
 
-	if utils.BindAndValidate(c, &payload) != nil {
+	if utils.BindAndValidate(ctx, &payload) != nil {
 		return
 	}
 
 	data, code, entity, errors := ctl.Repo.SaveMosque(&payload)
-	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
+	utils.HttpResponse(ctx, data, code, entity, ctx.Request.Method, errors)
 }

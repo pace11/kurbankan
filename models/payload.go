@@ -31,10 +31,3 @@ type LoginPayload struct {
 	Email    string `json:"email" binding:"required,email"`
 	Password string `json:"password" binding:"required"`
 }
-
-type TransactionPayload struct {
-	MosqueID         uint    `json:"mosque_id" binding:"required"`
-	QurbanOfferingID uint    `json:"qurban_offering_id" binding:"required"`
-	ParticipantID    uint    `json:"participant_id" binding:"required"`
-	Amount           float64 `json:"amount" binding:"required"`
-}

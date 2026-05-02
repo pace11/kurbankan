@@ -2,6 +2,7 @@ package routes
 
 import (
 	"kurbankan/controllers"
+	"kurbankan/middlewares"
 	"kurbankan/repository"
 
 	"github.com/gin-gonic/gin"
@@ -24,6 +25,7 @@ func SetupRoutes(r *gin.Engine) {
 	RegisterController := controllers.NewRegisterController(repository.NewRegisterRepository())
 	LoginController := controllers.NewLoginController(repository.NewLoginRepository())
 	TransactionController := controllers.NewTransactionController(repository.NewTransactionRepository())
+	MosquePaymentMethodController := controllers.NewMosquePaymentMethodController(repository.NewMosquePaymentMethodRepository())
 	MigrationController := controllers.NewMigrationController()
 	SeederController := controllers.NewSeederController()
 
@@ -59,7 +61,7 @@ func SetupRoutes(r *gin.Engine) {
 	// xendit virtual account
 	api.POST("/xendit/va-callback", controllers.XenditVAWebhookHandler)
 
-	// api.Use(middlewares.JWTAuthMiddleware())
+	api.Use(middlewares.JWTAuthMiddleware())
 
 	// qurban-periods
 	api.GET("/qurban-periods", QurbanPeriodController.GetQurbanPeriods)
@@ -84,6 +86,9 @@ func SetupRoutes(r *gin.Engine) {
 	api.PATCH("/mosques/:id", MosqueController.UpdateMosque)
 	api.DELETE("/mosques/:id", MosqueController.DeleteMosque)
 
+	// mosque payment methods
+	api.POST("/mosques/payment-methods", MosquePaymentMethodController.Create)
+
 	// participants
 	api.GET("/participants", ParticipantController.GetParticipants)
 	api.GET("/participants/:id", ParticipantController.GetParticipant)
@@ -99,5 +104,7 @@ func SetupRoutes(r *gin.Engine) {
 
 	// transactions
 	api.GET("/transactions", TransactionController.GetTransactions)
+	api.GET("/transactions/mosque", TransactionController.GetTransactionsByMosqueID)
 	api.POST("/transactions", TransactionController.CreateTransaction)
+
 }

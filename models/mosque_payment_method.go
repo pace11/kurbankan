@@ -6,6 +6,8 @@ import (
 	"gorm.io/gorm"
 )
 
+// ========== Constants ==========
+
 type MosquePaymentType string
 
 const (
@@ -26,6 +28,8 @@ type MosquePaymentMethodResponse struct {
 	UpdatedAt     *time.Time        `json:"updated_at"`
 	Bank          *Bank             `json:"bank,omitempty"`
 }
+
+// ========== Models ==========
 
 type MosquePaymentMethod struct {
 	ID uint `json:"id" gorm:"primaryKey"`
@@ -51,4 +55,20 @@ type MosquePaymentMethod struct {
 
 func (MosquePaymentMethod) TableName() string {
 	return "mosque_payment_methods"
+}
+
+// ========== Payloads (Request DTOs) ==========
+
+type MosquePaymentMethodCreatePayload struct {
+	Type          MosquePaymentType `json:"type" binding:"required,oneof=bank_transfer qris_static"`
+	Name          string            `json:"name" binding:"required,min=1,max=100"`
+	AccountName   *string           `json:"account_name"`   // Required if type is bank_transfer
+	AccountNumber *string           `json:"account_number"` // Required if type is bank_transfer
+	QRISImageURL  *string           `json:"qris_image_url"` // Required if type is qris_static
+	Instructions  *string           `json:"instructions"`
+	IsActive      *bool             `json:"is_active"`
+	BankID        *uint             `json:"bank_id"` // Optional: only for bank_transfer
+
+	// Not provided in payload
+	MosqueID uint `json:"-"`
 }

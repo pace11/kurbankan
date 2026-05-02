@@ -27,17 +27,17 @@ type ParticipantResponse struct {
 }
 
 type Participant struct {
-	ID              uint `json:"id" gorm:"primaryKey"`
-	UserID          uint `json:"user_id"`
-	CreatedByUserID uint `json:"created_by_user_id"`
+	ID              uint  `json:"id" gorm:"primaryKey"`
+	UserID          *uint `json:"user_id"`
+	CreatedByUserID uint  `json:"created_by_user_id"`
 
 	Name         string  `json:"name"`
 	Address      *string `json:"address"`
 	Gender       *Gender `json:"gender" gorm:"type:varchar(10)"`
-	ProvinceCode string  `json:"province_code"`
-	RegencyCode  string  `json:"regency_code"`
-	DistrictCode string  `json:"district_code"`
-	VillageCode  string  `json:"village_code"`
+	ProvinceCode *string `json:"province_code"`
+	RegencyCode  *string `json:"regency_code"`
+	DistrictCode *string `json:"district_code"`
+	VillageCode  *string `json:"village_code"`
 
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`

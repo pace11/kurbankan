@@ -38,15 +38,15 @@ func (r *registerRepository) SaveParticipant(participant *models.UserCreatePaylo
 	}
 
 	participantCreate := models.Participant{
-		UserID:          userToCreate.ID,
+		UserID:          &userToCreate.ID,
 		CreatedByUserID: userToCreate.ID,
 		Name:            participant.Name,
 		Gender:          participant.Gender,
 		Address:         participant.Address,
-		ProvinceCode:    participant.ProvinceCode,
-		RegencyCode:     participant.RegencyCode,
-		DistrictCode:    participant.DistrictCode,
-		VillageCode:     participant.VillageCode,
+		ProvinceCode:    &participant.ProvinceCode,
+		RegencyCode:     &participant.RegencyCode,
+		DistrictCode:    &participant.DistrictCode,
+		VillageCode:     &participant.VillageCode,
 	}
 
 	if err := tx.Save(&participantCreate).Error; err != nil {
@@ -70,6 +70,7 @@ func (r *registerRepository) SaveMosque(mosque *models.UserCreatePayload) (any, 
 		return nil, http.StatusInternalServerError, "mosque", nil
 	}
 
+	// Create user first
 	userToCreate := models.User{
 		Email:    mosque.Email,
 		Password: hashed,
@@ -80,6 +81,7 @@ func (r *registerRepository) SaveMosque(mosque *models.UserCreatePayload) (any, 
 		return nil, http.StatusInternalServerError, "mosque", nil
 	}
 
+	// Then create mosque with the created user's ID
 	mosqueCreate := models.Mosque{
 		UserID:       userToCreate.ID,
 		Name:         mosque.Name,
@@ -94,6 +96,18 @@ func (r *registerRepository) SaveMosque(mosque *models.UserCreatePayload) (any, 
 	if err := tx.Save(&mosqueCreate).Error; err != nil {
 		tx.Rollback()
 		return nil, http.StatusInternalServerError, "mosque", nil
+	}
+
+	// Create mosque member with the created user's ID and mosque's ID, and set role as admin
+	mosqueMemberCreate := models.MosqueMember{
+		MosqueID: mosqueCreate.ID,
+		UserID:   userToCreate.ID,
+		Role:     models.MosqueAdmin,
+	}
+
+	if err := tx.Save(&mosqueMemberCreate).Error; err != nil {
+		tx.Rollback()
+		return nil, http.StatusInternalServerError, "mosque member", nil
 	}
 
 	if tx.Commit().Error != nil {

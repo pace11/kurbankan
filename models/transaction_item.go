@@ -6,28 +6,14 @@ import (
 	"gorm.io/gorm"
 )
 
-type TransactionStatus string
-type PaymentType string
-
-const (
-	Pending   TransactionStatus = "pending"
-	Paid      TransactionStatus = "paid"
-	Cancelled TransactionStatus = "cancelled"
-
-	VA PaymentType = "VA"
-)
-
 type TransactionItemResponse struct {
-	ID            uint              `json:"id"`
-	TransactionID uint              `json:"transaction_id"`
-	ParticipantID uint              `json:"participant_id"`
-	Amount        float64           `json:"amount"`
-	Status        TransactionStatus `json:"status"`
-	PaymentType   PaymentType       `json:"payment_type"`
-	ExternalID    string            `json:"external_id"`
-	PaidAt        *time.Time        `json:"paid_at"`
-	CreatedAt     time.Time         `json:"created_at"`
-	UpdatedAt     time.Time         `json:"updated_at"`
+	ID            uint       `json:"id"`
+	TransactionID uint       `json:"transaction_id"`
+	ParticipantID uint       `json:"participant_id"`
+	Amount        float64    `json:"amount"`
+	PaidAt        *time.Time `json:"paid_at"`
+	CreatedAt     time.Time  `json:"created_at"`
+	UpdatedAt     time.Time  `json:"updated_at"`
 }
 
 type TransactionItem struct {
@@ -36,12 +22,8 @@ type TransactionItem struct {
 	TransactionID uint `json:"transaction_id"`
 	ParticipantID uint `json:"participant_id"`
 
-	Amount      float64           `json:"amount"`
-	Status      TransactionStatus `json:"status" gorm:"type:varchar(20);default:'pending'"`
-	PaymentType PaymentType       `json:"payment_type" gorm:"type:varchar(20);default:'VA'"`
-	ExternalID  string            `json:"external_id"`
+	Amount *float64 `json:"amount"`
 
-	PaidAt    *time.Time     `json:"paid_at"`
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
 	DeletedAt gorm.DeletedAt `json:"deleted_at" gorm:"index"`
