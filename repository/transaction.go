@@ -269,3 +269,27 @@ func (r *transactionRepo) Save(transaction *models.TransactionCreatePayload) (an
 
 	return transactionData, http.StatusCreated, "transaction", nil
 }
+
+func (r *transactionRepo) UpdateProof(payload *models.TransactionUploadProofPayload) (any, int, string, map[string]string) {
+	var transaction models.Transaction
+
+	if err := config.DB.First(&transaction, payload.ID).Error; err != nil {
+		return nil, http.StatusNotFound, "transaction", map[string]string{
+			"error": "Transaction not found",
+		}
+	}
+
+	// Update transaction with proof details
+	transaction.ProofURL = &payload.ProofURL
+	transaction.PaidAmount = &payload.PaidAmount
+	transaction.PaymentNote = payload.PaymentNote
+	transaction.PaymentStatus = models.TransactionWaitingVerification
+
+	if err := config.DB.Save(&transaction).Error; err != nil {
+		return nil, http.StatusInternalServerError, "transaction", map[string]string{
+			"error": "Failed to update transaction proof",
+		}
+	}
+
+	return transaction, http.StatusOK, "transaction", nil
+}

@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"gorm.io/gorm"
@@ -64,18 +63,10 @@ func (t *Transaction) BeforeCreate(tx *gorm.DB) error {
 		return nil
 	}
 
-	// Fetch QurbanOffering to get AnimalType and SchemeType
-	var offering QurbanOffering
-	if err := tx.First(&offering, t.QurbanOfferingID).Error; err != nil {
-		return err
-	}
-
-	// Generate transaction code: TRX-{ANIMAL_TYPE}-{SCHEME_TYPE}-{TIMESTAMP}
+	// Generate transaction code using current timestamp (e.g., TRX-20240610123045)
 	timestamp := time.Now().Format("20060102150405")
-	animalType := strings.ToUpper(string(offering.AnimalType))
-	schemeType := strings.ToUpper(string(offering.SchemeType))
 
-	t.Code = fmt.Sprintf("TRX-%s-%s-%s", animalType, schemeType, timestamp)
+	t.Code = fmt.Sprintf("TRX-%s", timestamp)
 
 	return nil
 }
@@ -108,6 +99,9 @@ type TransactionUploadProofPayload struct {
 	ProofURL    string  `json:"proof_url" binding:"required,url"`
 	PaidAmount  float64 `json:"paid_amount" binding:"required,gt=0"`
 	PaymentNote *string `json:"payment_note"`
+
+	// Not provided in payload
+	ID uint `json:"-"`
 }
 
 // TransactionVerifyPayload for verifying payment (mosque/admin)
