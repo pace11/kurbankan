@@ -6,6 +6,7 @@ import (
 	"kurbankan/models"
 	"kurbankan/utils"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
 )
@@ -152,6 +153,15 @@ func (r *transactionRepo) Save(transaction *models.TransactionCreatePayload) (an
 		return nil, http.StatusBadRequest, "transaction", map[string]string{"error": "At least one participant is required"}
 	}
 
+	// Check if offering has enough capacity for the participants
+	availableSlots := qurbanOffering.Capacity - qurbanOffering.FilledSlots
+	if totalParticipants > availableSlots {
+		tx.Rollback()
+		return nil, http.StatusBadRequest, "transaction", map[string]string{
+			"error": fmt.Sprintf("Not enough slots available. Requested: %d, Available: %d", totalParticipants, availableSlots),
+		}
+	}
+
 	// Collect all participant IDs (existing + newly created)
 	var allParticipantIDs []uint
 
@@ -210,6 +220,9 @@ func (r *transactionRepo) Save(transaction *models.TransactionCreatePayload) (an
 	amountPerParticipant := qurbanOffering.Price
 	totalAmount := qurbanOffering.Price * float64(totalParticipants)
 
+	// Set expiration time (20 minutes from now)
+	expiredAt := time.Now().Add(20 * time.Minute)
+
 	// Create transaction with total amount
 	transactionData := models.Transaction{
 		MosqueID:              transaction.MosqueID,
@@ -219,6 +232,7 @@ func (r *transactionRepo) Save(transaction *models.TransactionCreatePayload) (an
 		QurbanOfferingID:      transaction.QurbanOfferingID,
 		MosquePaymentMethodID: transaction.MosquePaymentMethodID,
 		PaymentNote:           transaction.PaymentNote,
+		ExpiredAt:             &expiredAt,
 	}
 
 	if err := tx.Create(&transactionData).Error; err != nil {
@@ -238,6 +252,13 @@ func (r *transactionRepo) Save(transaction *models.TransactionCreatePayload) (an
 			tx.Rollback()
 			return nil, http.StatusInternalServerError, "transaction item", nil
 		}
+	}
+
+	// Update qurban offering filled slots
+	qurbanOffering.FilledSlots += totalParticipants
+	if err := tx.Save(&qurbanOffering).Error; err != nil {
+		tx.Rollback()
+		return nil, http.StatusInternalServerError, "qurban offering", nil
 	}
 
 	// Commit the transaction

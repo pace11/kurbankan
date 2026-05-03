@@ -41,6 +41,7 @@ type Transaction struct {
 	VerifiedAt       *time.Time               `json:"verified_at"`
 	RejectedReason   *string                  `json:"rejected_reason"`
 	ExternalID       *string                  `json:"external_id"`
+	ExpiredAt        *time.Time               `json:"expired_at"`
 
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`
