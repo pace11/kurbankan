@@ -14,6 +14,7 @@ import (
 type TransactionRepository interface {
 	Index(c *gin.Context) ([]models.TransactionResponse, int, any, int64, int, int)
 	Save(transaction *models.TransactionCreatePayload) (any, int, string, map[string]string)
+	UpdateProof(payload *models.TransactionUploadProofPayload) (any, int, string, map[string]string)
 
 	// Specific by mosque
 	IndexByMosqueID(c *gin.Context, mosqueID uint) ([]models.TransactionResponse, int, any, int64, int, int)

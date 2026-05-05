@@ -106,5 +106,7 @@ func SetupRoutes(r *gin.Engine) {
 	api.GET("/transactions", TransactionController.GetTransactions)
 	api.GET("/transactions/mosque", TransactionController.GetTransactionsByMosqueID)
 	api.POST("/transactions", TransactionController.CreateTransaction)
+	api.PUT("/transactions/:id/proof", TransactionController.UploadProof)
+	api.PUT("/transactions/:id/verify", TransactionController.VerifyTransaction)
 
 }
