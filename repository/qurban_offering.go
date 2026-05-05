@@ -43,6 +43,7 @@ func (r *qurbanOfferingRepo) Index(c *gin.Context, filters map[string]any) ([]mo
 			Price:          q.Price,
 			Capacity:       q.Capacity,
 			FilledSlots:    q.FilledSlots,
+			ConfirmedSlots: q.ConfirmedSlots,
 			Status:         q.Status,
 			CreatedAt:      q.CreatedAt,
 			UpdatedAt:      q.UpdatedAt,

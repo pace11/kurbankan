@@ -14,6 +14,7 @@ func StatusMessage(code int, method string, entity any) string {
 		http.StatusNotFound:            "%v not found",
 		http.StatusInternalServerError: "Internal server error while processing %v",
 		http.StatusUnauthorized:        "Unauthorized %v",
+		http.StatusAccepted:            "Successfully updated %v",
 	}
 
 	methodMessages := map[string]string{

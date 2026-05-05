@@ -61,6 +61,9 @@ func SetupRoutes(r *gin.Engine) {
 	// xendit virtual account
 	api.POST("/xendit/va-callback", controllers.XenditVAWebhookHandler)
 
+	// public endpoints
+	api.POST("/transactions/cancel-expired", TransactionController.CancelExpiredTransactions)
+
 	api.Use(middlewares.JWTAuthMiddleware())
 
 	// qurban-periods
@@ -108,5 +111,4 @@ func SetupRoutes(r *gin.Engine) {
 	api.POST("/transactions", TransactionController.CreateTransaction)
 	api.PUT("/transactions/:id/proof", TransactionController.UploadProof)
 	api.PUT("/transactions/:id/verify", TransactionController.VerifyTransaction)
-
 }

@@ -13,8 +13,10 @@ import (
 
 type TransactionRepository interface {
 	Index(c *gin.Context) ([]models.TransactionResponse, int, any, int64, int, int)
-	Save(transaction *models.TransactionCreatePayload) (any, int, string, map[string]string)
+	Create(transaction *models.TransactionCreatePayload) (any, int, string, map[string]string)
 	UpdateProof(payload *models.TransactionUploadProofPayload) (any, int, string, map[string]string)
+	Verify(payload *models.TransactionVerifyPayload) (any, int, string, map[string]string)
+	MarkExpiredPendingTransactions() (any, int, string, map[string]string)
 
 	// Specific by mosque
 	IndexByMosqueID(c *gin.Context, mosqueID uint) ([]models.TransactionResponse, int, any, int64, int, int)
@@ -110,7 +112,7 @@ func (r *transactionRepo) IndexByParticipantID(c *gin.Context, participantID uin
 	return response, http.StatusOK, "transaction", total, page, limit
 }
 
-func (r *transactionRepo) Save(transaction *models.TransactionCreatePayload) (any, int, string, map[string]string) {
+func (r *transactionRepo) Create(transaction *models.TransactionCreatePayload) (any, int, string, map[string]string) {
 	tx := config.DB.Begin()
 
 	var qurbanOffering models.QurbanOffering
@@ -293,4 +295,169 @@ func (r *transactionRepo) UpdateProof(payload *models.TransactionUploadProofPayl
 	}
 
 	return transaction, http.StatusOK, "transaction", nil
+}
+
+func (r *transactionRepo) Verify(payload *models.TransactionVerifyPayload) (any, int, string, map[string]string) {
+	// Start a database transaction
+	tx := config.DB.Begin()
+
+	var transaction models.Transaction
+	if err := tx.Preload("QurbanOffering").First(&transaction, payload.ID).Error; err != nil {
+		tx.Rollback()
+		return nil, http.StatusNotFound, "transaction", map[string]string{"error": "Transaction not found"}
+	}
+
+	// Validate transaction status
+	if transaction.PaymentStatus != models.TransactionWaitingVerification {
+		tx.Rollback()
+		return nil, http.StatusBadRequest, "transaction", map[string]string{"error": "Transaction is not in waiting_verification status"}
+	}
+
+	// Validate rejected reason if status is rejected
+	if payload.PaymentStatus == models.TransactionRejected && (payload.RejectedReason == nil || *payload.RejectedReason == "") {
+		tx.Rollback()
+		return nil, http.StatusBadRequest, "transaction", map[string]string{"rejected_reason": "Rejected reason is required when rejecting a transaction"}
+	}
+
+	// Count transaction items (participants) for this transaction
+	var transactionItemCount int64
+	if err := tx.Model(&models.TransactionItem{}).Where("transaction_id = ?", payload.ID).Count(&transactionItemCount).Error; err != nil {
+		tx.Rollback()
+		return nil, http.StatusInternalServerError, "transaction", map[string]string{"error": "Failed to count transaction items"}
+	}
+
+	// Update transaction status
+	now := time.Now()
+	transaction.PaymentStatus = payload.PaymentStatus
+	transaction.VerifiedByUserID = &payload.VerifiedByUserID
+	transaction.VerifiedAt = &now
+	transaction.RejectedReason = payload.RejectedReason
+
+	switch payload.PaymentStatus {
+	case models.TransactionPaid:
+		transaction.PaidAt = &now
+
+		// Update ConfirmedSlots in QurbanOffering
+		if transaction.QurbanOffering != nil {
+			transaction.QurbanOffering.ConfirmedSlots += int(transactionItemCount)
+
+			// Auto-close offering when all slots are confirmed/paid
+			if transaction.QurbanOffering.ConfirmedSlots >= transaction.QurbanOffering.Capacity {
+				transaction.QurbanOffering.Status = models.Closed
+			}
+
+			if err := tx.Save(transaction.QurbanOffering).Error; err != nil {
+				tx.Rollback()
+				return nil, http.StatusInternalServerError, "transaction", map[string]string{"error": "Failed to update confirmed slots"}
+			}
+		}
+	case models.TransactionRejected:
+		// Decrease FilledSlots when transaction is rejected
+		if transaction.QurbanOffering != nil {
+			transaction.QurbanOffering.FilledSlots -= int(transactionItemCount)
+			if transaction.QurbanOffering.FilledSlots < 0 {
+				transaction.QurbanOffering.FilledSlots = 0
+			}
+
+			// Re-open offering if it was closed and now has available slots
+			if transaction.QurbanOffering.Status == models.Closed &&
+				transaction.QurbanOffering.ConfirmedSlots < transaction.QurbanOffering.Capacity {
+				transaction.QurbanOffering.Status = models.Open
+			}
+
+			if err := tx.Save(transaction.QurbanOffering).Error; err != nil {
+				tx.Rollback()
+				return nil, http.StatusInternalServerError, "transaction", map[string]string{"error": "Failed to update filled slots"}
+			}
+		}
+	}
+
+	if err := tx.Save(&transaction).Error; err != nil {
+		tx.Rollback()
+		return nil, http.StatusInternalServerError, "transaction", map[string]string{"error": "Failed to verify transaction"}
+	}
+
+	// Commit the transaction
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return nil, http.StatusInternalServerError, "transaction", map[string]string{"error": "Failed to commit verification"}
+	}
+
+	return nil, http.StatusAccepted, "transaction", nil
+}
+
+func (r *transactionRepo) MarkExpiredPendingTransactions() (any, int, string, map[string]string) {
+	// Start a database transaction
+	tx := config.DB.Begin()
+
+	var transactions []models.Transaction
+	now := time.Now()
+
+	// Find all pending transactions that have expired
+	if err := tx.Preload("QurbanOffering").Where("payment_status = ? AND expired_at IS NOT NULL AND expired_at < ?", models.TransactionPending, now).Find(&transactions).Error; err != nil {
+		tx.Rollback()
+		return nil, http.StatusInternalServerError, "transaction", map[string]string{"error": "Failed to fetch expired transactions"}
+	}
+
+	if len(transactions) == 0 {
+		tx.Rollback()
+		return nil, http.StatusOK, "transaction", nil
+	}
+
+	cancelledIDs := []uint{}
+	offeringUpdates := make(map[uint]*models.QurbanOffering) // Track offerings to update
+
+	for _, transaction := range transactions {
+		// Count transaction items (participants) for this transaction
+		var transactionItemCount int64
+		if err := tx.Model(&models.TransactionItem{}).Where("transaction_id = ?", transaction.ID).Count(&transactionItemCount).Error; err != nil {
+			continue // Skip this transaction on error
+		}
+
+		// Update transaction status to cancelled
+		transaction.PaymentStatus = models.TransactionCancelled
+		if err := tx.Save(&transaction).Error; err != nil {
+			continue // Skip this transaction on error
+		}
+
+		cancelledIDs = append(cancelledIDs, transaction.ID)
+
+		// Decrease FilledSlots from QurbanOffering
+		if transaction.QurbanOffering != nil {
+			offeringID := transaction.QurbanOffering.ID
+
+			// Get or initialize offering in map
+			if _, exists := offeringUpdates[offeringID]; !exists {
+				offeringUpdates[offeringID] = transaction.QurbanOffering
+				offeringUpdates[offeringID].FilledSlots = transaction.QurbanOffering.FilledSlots
+			}
+
+			// Decrease filled slots
+			offeringUpdates[offeringID].FilledSlots -= int(transactionItemCount)
+			if offeringUpdates[offeringID].FilledSlots < 0 {
+				offeringUpdates[offeringID].FilledSlots = 0
+			}
+		}
+	}
+
+	// Update all affected offerings
+	for _, offering := range offeringUpdates {
+		// Re-open offering if it was closed and now has available slots
+		if offering.Status == models.Closed && offering.ConfirmedSlots < offering.Capacity {
+			offering.Status = models.Open
+		}
+
+		if err := tx.Save(offering).Error; err != nil {
+			tx.Rollback()
+			return nil, http.StatusInternalServerError, "transaction", map[string]string{"error": "Failed to update qurban offering slots"}
+		}
+	}
+
+	// Commit the transaction
+	if err := tx.Commit().Error; err != nil {
+		tx.Rollback()
+		return nil, http.StatusInternalServerError, "transaction", map[string]string{"error": "Failed to commit transaction"}
+	}
+
+	return nil, http.StatusAccepted, "mark expired transactions", nil
 }

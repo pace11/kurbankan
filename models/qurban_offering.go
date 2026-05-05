@@ -30,6 +30,7 @@ type QurbanOfferingResponse struct {
 	Price          float64          `json:"price"`
 	Capacity       int              `json:"capacity"`
 	FilledSlots    int              `json:"filled_slots"`
+	ConfirmedSlots int              `json:"confirmed_slots"`
 	Status         QurbanStatus     `json:"status"`
 	CreatedAt      time.Time        `json:"created_at"`
 	UpdatedAt      time.Time        `json:"updated_at"`
@@ -41,13 +42,14 @@ type QurbanOffering struct {
 	MosqueID       uint `json:"mosque_id"`
 	QurbanPeriodID uint `json:"qurban_period_id" binding:"required"`
 
-	AnimalType  QurbanAnimalType `json:"animal_type" gorm:"type:varchar(20);not null" binding:"required"`
-	SchemeType  QurbanSchemeType `json:"scheme_type" gorm:"type:varchar(20);not null" binding:"required"`
-	Name        string           `json:"name" gorm:"size:100" binding:"required"`
-	Price       float64          `json:"price" binding:"required"`
-	Capacity    int              `json:"capacity" binding:"required"`
-	FilledSlots int              `json:"filled_slots" gorm:"default:0"`
-	Status      QurbanStatus     `json:"status" gorm:"type:varchar(20);default:'open'"`
+	AnimalType     QurbanAnimalType `json:"animal_type" gorm:"type:varchar(20);not null" binding:"required"`
+	SchemeType     QurbanSchemeType `json:"scheme_type" gorm:"type:varchar(20);not null" binding:"required"`
+	Name           string           `json:"name" gorm:"size:100" binding:"required"`
+	Price          float64          `json:"price" binding:"required"`
+	Capacity       int              `json:"capacity" binding:"required"`
+	FilledSlots    int              `json:"filled_slots" gorm:"default:0"`
+	ConfirmedSlots int              `json:"confirmed_slots" gorm:"default:0"`
+	Status         QurbanStatus     `json:"status" gorm:"type:varchar(20);default:'open'"`
 
 	CreatedAt time.Time      `json:"created_at"`
 	UpdatedAt time.Time      `json:"updated_at"`

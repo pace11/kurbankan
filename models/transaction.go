@@ -108,6 +108,10 @@ type TransactionUploadProofPayload struct {
 type TransactionVerifyPayload struct {
 	PaymentStatus  TransactionPaymentStatus `json:"payment_status" binding:"required,oneof=paid rejected"`
 	RejectedReason *string                  `json:"rejected_reason"` // Required if status is rejected
+
+	// Not provided in payload
+	VerifiedByUserID uint `json:"-"`
+	ID               uint `json:"-"`
 }
 
 // Legacy: Keep for backward compatibility
