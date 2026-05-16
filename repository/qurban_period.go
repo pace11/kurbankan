@@ -12,8 +12,8 @@ import (
 
 type QurbanPeriodRepository interface {
 	Index(c *gin.Context, filters map[string]any) ([]models.QurbanPeriodResponse, int, any, int64, int, int)
-	Save(qurbanperiod *models.QurbanPeriod) (any, int, string, map[string]string)
-	Update(id uint, qurbanperiod *models.QurbanPeriod) (any, int, string, map[string]string)
+	Save(payload *models.QurbanPeriodRequest) (any, int, string, map[string]string)
+	Update(payload *models.QurbanPeriodRequest) (any, int, string, map[string]string)
 	Delete(id uint) (any, int, string, map[string]string)
 }
 
@@ -49,7 +49,15 @@ func (r *qurbanPeriodRepo) Index(c *gin.Context, filters map[string]any) ([]mode
 	return response, http.StatusOK, "qurban period", total, page, limit
 }
 
-func (r *qurbanPeriodRepo) Save(qurbanperiod *models.QurbanPeriod) (any, int, string, map[string]string) {
+func (r *qurbanPeriodRepo) Save(payload *models.QurbanPeriodRequest) (any, int, string, map[string]string) {
+	qurbanperiod := &models.QurbanPeriod{
+		Year:        payload.Year,
+		StartDate:   payload.StartDate,
+		EndDate:     payload.EndDate,
+		Description: payload.Description,
+		MosqueID:    payload.MosqueID,
+	}
+
 	if err := config.DB.Create(qurbanperiod).Error; err != nil {
 		fmt.Println("Error creating qurban period:", err)
 		return nil, http.StatusInternalServerError, "qurban period", nil
@@ -58,18 +66,18 @@ func (r *qurbanPeriodRepo) Save(qurbanperiod *models.QurbanPeriod) (any, int, st
 	return qurbanperiod, http.StatusCreated, "qurban period", nil
 }
 
-func (r *qurbanPeriodRepo) Update(id uint, qurbanperiod *models.QurbanPeriod) (any, int, string, map[string]string) {
+func (r *qurbanPeriodRepo) Update(payload *models.QurbanPeriodRequest) (any, int, string, map[string]string) {
 	var existing models.QurbanPeriod
 
-	if err := config.DB.First(&existing, id).Error; err != nil {
+	if err := config.DB.First(&existing, payload.ID).Error; err != nil {
 		return nil, http.StatusNotFound, "qurban period", nil
 	}
 
 	if err := config.DB.Model(&existing).Updates(map[string]any{
-		"year":        qurbanperiod.Year,
-		"start_date":  qurbanperiod.StartDate,
-		"end_date":    qurbanperiod.EndDate,
-		"description": qurbanperiod.Description,
+		"year":        payload.Year,
+		"start_date":  payload.StartDate,
+		"end_date":    payload.EndDate,
+		"description": payload.Description,
 	}).Error; err != nil {
 		return nil, http.StatusInternalServerError, "qurban period", nil
 	}

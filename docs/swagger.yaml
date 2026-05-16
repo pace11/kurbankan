@@ -1,0 +1,434 @@
+basePath: /api
+definitions:
+  models.PaginatedMeta:
+    properties:
+      limit:
+        example: 10
+        type: integer
+      page:
+        example: 1
+        type: integer
+      total:
+        example: 100
+        type: integer
+      total_pages:
+        example: 10
+        type: integer
+    type: object
+  models.QurbanPeriodListResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.QurbanPeriodResponse'
+        type: array
+      meta:
+        $ref: '#/definitions/models.PaginatedMeta'
+    type: object
+  models.QurbanPeriodMutationResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.QurbanPeriodResponse'
+      message:
+        example: Qurban Period created successfully
+        type: string
+    type: object
+  models.QurbanPeriodRequest:
+    properties:
+      description:
+        type: string
+      end_date:
+        type: string
+      start_date:
+        type: string
+      year:
+        type: integer
+    required:
+    - end_date
+    - start_date
+    - year
+    type: object
+  models.QurbanPeriodResponse:
+    properties:
+      created_at:
+        type: string
+      description:
+        type: string
+      end_date:
+        type: string
+      id:
+        type: integer
+      start_date:
+        type: string
+      updated_at:
+        type: string
+      year:
+        type: integer
+    type: object
+  models.SwaggerError:
+    properties:
+      code:
+        example: NOT_FOUND
+        type: string
+      message:
+        example: Qurban period not found
+        type: string
+    type: object
+  models.SwaggerErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/models.SwaggerError'
+    type: object
+  models.SwaggerValidationDetail:
+    additionalProperties:
+      type: string
+    type: object
+  models.SwaggerValidationError:
+    properties:
+      code:
+        example: VALIDATION_ERROR
+        type: string
+      details:
+        $ref: '#/definitions/models.SwaggerValidationDetail'
+      message:
+        example: Validation failed
+        type: string
+    type: object
+  models.SwaggerValidationErrorResponse:
+    properties:
+      error:
+        $ref: '#/definitions/models.SwaggerValidationError'
+    type: object
+host: localhost:4000
+info:
+  contact:
+    email: dev@kurbankan.id
+    name: Kurbankan Dev
+  description: API server for Kurbankan qurban management platform.
+  title: Kurbankan API
+  version: "1.0"
+paths:
+  /api/migrate:
+    post:
+      consumes:
+      - application/json
+      description: Automatically migrate all database tables based on GORM models
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Run database migration
+      tags:
+      - Migration
+  /api/migrate/drop:
+    delete:
+      consumes:
+      - application/json
+      description: DROP ALL TABLES - USE WITH EXTREME CAUTION! This will delete all
+        data.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Drop all database tables
+      tags:
+      - Migration
+  /api/migrate/status:
+    get:
+      consumes:
+      - application/json
+      description: Check if all required database tables exist
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+      summary: Check migration status
+      tags:
+      - Migration
+  /api/seed/clear:
+    delete:
+      consumes:
+      - application/json
+      description: Delete all data from provinces, regencies, districts, and villages
+        tables
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Clear all seeded data
+      tags:
+      - Seeder
+  /api/seed/run:
+    post:
+      consumes:
+      - application/json
+      description: Execute all seed SQL files in the correct order
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Run all seeders
+      tags:
+      - Seeder
+  /api/seed/run/{seed}:
+    post:
+      consumes:
+      - application/json
+      description: Execute a specific seed SQL file
+      parameters:
+      - description: Seed name (provinces, regencies, districts, villages_1, villages_2)
+        in: path
+        name: seed
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Run specific seeder
+      tags:
+      - Seeder
+  /api/seed/status:
+    get:
+      consumes:
+      - application/json
+      description: Check which tables have been seeded and data counts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+      summary: Check seeder status
+      tags:
+      - Seeder
+  /qurban-periods:
+    get:
+      description: Returns a paginated list of qurban periods. Optionally filter by
+        year.
+      parameters:
+      - description: Filter by year (e.g. 2025)
+        in: query
+        name: year
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.QurbanPeriodListResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List qurban periods
+      tags:
+      - Qurban Periods
+    post:
+      consumes:
+      - application/json
+      description: Creates a new qurban period for the authenticated mosque.
+      parameters:
+      - description: Qurban period payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.QurbanPeriodRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.QurbanPeriodMutationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.SwaggerValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a qurban period
+      tags:
+      - Qurban Periods
+  /qurban-periods/{id}:
+    delete:
+      description: Deletes a qurban period by ID for the authenticated mosque.
+      parameters:
+      - description: Qurban Period ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.QurbanPeriodMutationResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a qurban period
+      tags:
+      - Qurban Periods
+    patch:
+      consumes:
+      - application/json
+      description: Updates an existing qurban period by ID for the authenticated mosque.
+      parameters:
+      - description: Qurban Period ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Qurban period payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.QurbanPeriodRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.QurbanPeriodMutationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.SwaggerValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a qurban period
+      tags:
+      - Qurban Periods
+securityDefinitions:
+  BearerAuth:
+    description: Type "Bearer" followed by a space and JWT token.
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

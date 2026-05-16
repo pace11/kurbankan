@@ -23,8 +23,8 @@ func (ctl *BeneficiaryController) GetBeneficiaries(c *gin.Context) {
 		"name": c.Query("name"),
 	}
 
-	data, code, entity, total, page, limit := ctl.Repo.Index(c, filters)
-	utils.PaginatedResponse(c, data, code, entity, c.Request.Method, total, page, limit)
+	data, _, _, total, page, limit := ctl.Repo.Index(c, filters)
+	utils.PaginatedResponse(c, data, total, page, limit)
 }
 
 func (ctl *BeneficiaryController) GetBeneficiary(c *gin.Context) {
@@ -32,12 +32,15 @@ func (ctl *BeneficiaryController) GetBeneficiary(c *gin.Context) {
 	id, err := strconv.Atoi(idParam)
 
 	if err != nil {
-		utils.HttpResponse(c, nil, http.StatusBadRequest, "Invalid ID", c.Request.Method, nil)
+		utils.ErrorResponse(c, http.StatusBadRequest, "BAD_REQUEST", "Invalid ID")
 		return
 	}
 
-	data, code, entity, errors := ctl.Repo.Show(uint(id))
-	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
+	data, code, _, errors := ctl.Repo.Show(uint(id))
+	if utils.HandleRepoError(c, code, errors) {
+		return
+	}
+	utils.DetailResponse(c, data)
 }
 
 func (ctl *BeneficiaryController) CreateBeneficiary(c *gin.Context) {
@@ -48,7 +51,10 @@ func (ctl *BeneficiaryController) CreateBeneficiary(c *gin.Context) {
 	}
 
 	data, code, entity, errors := ctl.Repo.Save(&beneficiary)
-	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
+	if utils.HandleRepoError(c, code, errors) {
+		return
+	}
+	utils.MutationResponse(c, code, utils.MutationMessage(entity, c.Request.Method), data)
 }
 
 func (ctl *BeneficiaryController) UpdateBeneficiary(c *gin.Context) {
@@ -60,11 +66,17 @@ func (ctl *BeneficiaryController) UpdateBeneficiary(c *gin.Context) {
 	}
 
 	data, code, entity, errors := ctl.Repo.Update(uint(id), &beneficiary)
-	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
+	if utils.HandleRepoError(c, code, errors) {
+		return
+	}
+	utils.MutationResponse(c, code, utils.MutationMessage(entity, c.Request.Method), data)
 }
 
 func (ctl *BeneficiaryController) DeleteBeneficiary(c *gin.Context) {
 	id, _ := strconv.Atoi(c.Param("id"))
 	data, code, entity, errors := ctl.Repo.Delete(uint(id))
-	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
+	if utils.HandleRepoError(c, code, errors) {
+		return
+	}
+	utils.MutationResponse(c, code, utils.MutationMessage(entity, c.Request.Method), data)
 }

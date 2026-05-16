@@ -22,6 +22,6 @@ func (ctl *BankController) GetBanks(c *gin.Context) {
 		"name": c.Query("name"),
 		"code": c.Query("code"),
 	}
-	data, code, entity, total, page, limit := ctl.BankRepo.Index(c, filters)
-	utils.PaginatedResponse(c, data, code, entity, c.Request.Method, total, page, limit)
+	data, _, _, total, page, limit := ctl.BankRepo.Index(c, filters)
+	utils.PaginatedResponse(c, data, total, page, limit)
 }

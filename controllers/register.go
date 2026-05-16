@@ -23,8 +23,11 @@ func (ctl *RegisterController) RegisterParticipant(ctx *gin.Context) {
 		return
 	}
 
-	data, code, entity, errors := ctl.Repo.SaveParticipant(&payload)
-	utils.HttpResponse(ctx, data, code, entity, ctx.Request.Method, errors)
+	data, code, _, errors := ctl.Repo.SaveParticipant(&payload)
+	if utils.HandleRepoError(ctx, code, errors) {
+		return
+	}
+	utils.MutationResponse(ctx, code, "Participant registered successfully", data)
 }
 
 func (ctl *RegisterController) RegisterMosque(ctx *gin.Context) {
@@ -34,6 +37,9 @@ func (ctl *RegisterController) RegisterMosque(ctx *gin.Context) {
 		return
 	}
 
-	data, code, entity, errors := ctl.Repo.SaveMosque(&payload)
-	utils.HttpResponse(ctx, data, code, entity, ctx.Request.Method, errors)
+	data, code, _, errors := ctl.Repo.SaveMosque(&payload)
+	if utils.HandleRepoError(ctx, code, errors) {
+		return
+	}
+	utils.MutationResponse(ctx, code, "Mosque registered successfully", data)
 }

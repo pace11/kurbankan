@@ -43,7 +43,7 @@ var seedOrder = []string{
 // @Tags Seeder
 // @Accept json
 // @Produce json
-// @Success 200 {object} utils.Response
+// @Success 200 {object}  models.SwaggerErrorResponse
 // @Router /api/seed/status [get]
 func (sc *SeederController) GetSeederStatus(c *gin.Context) {
 	type TableStatus struct {
@@ -103,9 +103,9 @@ func (sc *SeederController) GetSeederStatus(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} utils.Response
-// @Failure 401 {object} utils.Response
-// @Failure 500 {object} utils.Response
+// @Success 200 {object}  models.SwaggerErrorResponse
+// @Failure 401 {object}  models.SwaggerErrorResponse
+// @Failure 500 {object}  models.SwaggerErrorResponse
 // @Router /api/seed/run [post]
 func (sc *SeederController) RunAllSeeders(c *gin.Context) {
 	// Security check: optional migration key for production
@@ -168,10 +168,10 @@ func (sc *SeederController) RunAllSeeders(c *gin.Context) {
 // @Produce json
 // @Param seed path string true "Seed name (provinces, regencies, districts, villages_1, villages_2)"
 // @Security ApiKeyAuth
-// @Success 200 {object} utils.Response
-// @Failure 400 {object} utils.Response
-// @Failure 401 {object} utils.Response
-// @Failure 500 {object} utils.Response
+// @Success 200 {object}  models.SwaggerErrorResponse
+// @Failure 400 {object}  models.SwaggerErrorResponse
+// @Failure 401 {object}  models.SwaggerErrorResponse
+// @Failure 500 {object}  models.SwaggerErrorResponse
 // @Router /api/seed/run/{seed} [post]
 func (sc *SeederController) RunSpecificSeeder(c *gin.Context) {
 	seedName := c.Param("seed")
@@ -187,13 +187,13 @@ func (sc *SeederController) RunSpecificSeeder(c *gin.Context) {
 
 	filePath, exists := seedFiles[seedName]
 	if !exists {
-		utils.ErrorResponse(c, http.StatusBadRequest, fmt.Sprintf("Unknown seed: %s. Available: %v", seedName, seedOrder))
+		utils.ErrorResponse(c, http.StatusBadRequest, "BAD_REQUEST", fmt.Sprintf("Unknown seed: %s. Available: %v", seedName, seedOrder))
 		return
 	}
 
 	count, err := executeSeedFile(filePath)
 	if err != nil {
-		utils.ErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("Seeder failed: %s", err.Error()))
+		utils.ErrorResponse(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Seeder failed: %s", err.Error()))
 		return
 	}
 
@@ -214,9 +214,9 @@ func (sc *SeederController) RunSpecificSeeder(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} utils.Response
-// @Failure 401 {object} utils.Response
-// @Failure 500 {object} utils.Response
+// @Success 200 {object}  models.SwaggerErrorResponse
+// @Failure 401 {object}  models.SwaggerErrorResponse
+// @Failure 500 {object}  models.SwaggerErrorResponse
 // @Router /api/seed/clear [delete]
 func (sc *SeederController) ClearSeededData(c *gin.Context) {
 	// Security check with confirmation
@@ -237,12 +237,12 @@ func (sc *SeederController) ClearSeededData(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Confirmation required")
+		utils.ErrorResponse(c, http.StatusBadRequest, "BAD_REQUEST", "Confirmation required")
 		return
 	}
 
 	if req.Confirm != "CLEAR_SEEDED_DATA" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid confirmation. Must be 'CLEAR_SEEDED_DATA'")
+		utils.ErrorResponse(c, http.StatusBadRequest, "BAD_REQUEST", "Invalid confirmation. Must be 'CLEAR_SEEDED_DATA'")
 		return
 	}
 
@@ -256,7 +256,7 @@ func (sc *SeederController) ClearSeededData(c *gin.Context) {
 
 		result := config.DB.Exec(fmt.Sprintf("DELETE FROM %s", table))
 		if result.Error != nil {
-			utils.ErrorResponse(c, http.StatusInternalServerError, fmt.Sprintf("Failed to clear %s: %s", table, result.Error.Error()))
+			utils.ErrorResponse(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", fmt.Sprintf("Failed to clear %s: %s", table, result.Error.Error()))
 			return
 		}
 

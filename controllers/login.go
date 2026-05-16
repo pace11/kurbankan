@@ -23,6 +23,9 @@ func (ctl *LoginController) Login(c *gin.Context) {
 		return
 	}
 
-	data, code, entity, errors := ctl.Repo.Login(&payload)
-	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
+	data, code, _, errors := ctl.Repo.Login(&payload)
+	if utils.HandleRepoError(c, code, errors) {
+		return
+	}
+	utils.MutationResponse(c, code, "Login successful", data)
 }

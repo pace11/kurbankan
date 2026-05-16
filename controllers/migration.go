@@ -22,9 +22,9 @@ func NewMigrationController() *MigrationController {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} utils.Response
-// @Failure 401 {object} utils.Response
-// @Failure 500 {object} utils.Response
+// @Success 200 {object}  models.SwaggerErrorResponse
+// @Failure 401 {object}  models.SwaggerErrorResponse
+// @Failure 500 {object}  models.SwaggerErrorResponse
 // @Router /api/migrate [post]
 func (mc *MigrationController) RunMigration(c *gin.Context) {
 	// Security check: require migration key
@@ -88,7 +88,7 @@ func (mc *MigrationController) RunMigration(c *gin.Context) {
 	// Run auto-migration
 	for _, model := range modelsToMigrate {
 		if err := config.DB.AutoMigrate(model); err != nil {
-			utils.ErrorResponse(c, http.StatusInternalServerError, "Migration failed: "+err.Error())
+			utils.ErrorResponse(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "Migration failed: "+err.Error())
 			return
 		}
 	}
@@ -137,7 +137,7 @@ func (mc *MigrationController) RunMigration(c *gin.Context) {
 // @Tags Migration
 // @Accept json
 // @Produce json
-// @Success 200 {object} utils.Response
+// @Success 200 {object}  models.SwaggerErrorResponse
 // @Router /api/migrate/status [get]
 func (mc *MigrationController) CheckMigrationStatus(c *gin.Context) {
 	tableNames := []string{
@@ -202,9 +202,9 @@ func (mc *MigrationController) CheckMigrationStatus(c *gin.Context) {
 // @Accept json
 // @Produce json
 // @Security ApiKeyAuth
-// @Success 200 {object} utils.Response
-// @Failure 401 {object} utils.Response
-// @Failure 500 {object} utils.Response
+// @Success 200 {object}  models.SwaggerErrorResponse
+// @Failure 401 {object}  models.SwaggerErrorResponse
+// @Failure 500 {object}  models.SwaggerErrorResponse
 // @Router /api/migrate/drop [delete]
 func (mc *MigrationController) DropAllTables(c *gin.Context) {
 	// Security check: require migration key AND confirmation
@@ -226,12 +226,12 @@ func (mc *MigrationController) DropAllTables(c *gin.Context) {
 	}
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Confirmation required")
+		utils.ErrorResponse(c, http.StatusBadRequest, "BAD_REQUEST", "Confirmation required")
 		return
 	}
 
 	if req.Confirm != "DROP_ALL_TABLES" {
-		utils.ErrorResponse(c, http.StatusBadRequest, "Invalid confirmation. Must be 'DROP_ALL_TABLES'")
+		utils.ErrorResponse(c, http.StatusBadRequest, "BAD_REQUEST", "Invalid confirmation. Must be 'DROP_ALL_TABLES'")
 		return
 	}
 
@@ -265,7 +265,7 @@ func (mc *MigrationController) DropAllTables(c *gin.Context) {
 
 	for _, model := range modelsToMigrate {
 		if err := config.DB.Migrator().DropTable(model); err != nil {
-			utils.ErrorResponse(c, http.StatusInternalServerError, "Failed to drop table: "+err.Error())
+			utils.ErrorResponse(c, http.StatusInternalServerError, "INTERNAL_SERVER_ERROR", "Failed to drop table: "+err.Error())
 			return
 		}
 		// Get table name using type assertion

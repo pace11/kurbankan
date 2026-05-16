@@ -1,0 +1,667 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "API server for Kurbankan qurban management platform.",
+        "title": "Kurbankan API",
+        "contact": {
+            "name": "Kurbankan Dev",
+            "email": "dev@kurbankan.id"
+        },
+        "version": "1.0"
+    },
+    "host": "localhost:4000",
+    "basePath": "/api",
+    "paths": {
+        "/api/migrate": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Automatically migrate all database tables based on GORM models",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Migration"
+                ],
+                "summary": "Run database migration",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/migrate/drop": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "DROP ALL TABLES - USE WITH EXTREME CAUTION! This will delete all data.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Migration"
+                ],
+                "summary": "Drop all database tables",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/migrate/status": {
+            "get": {
+                "description": "Check if all required database tables exist",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Migration"
+                ],
+                "summary": "Check migration status",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/seed/clear": {
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Delete all data from provinces, regencies, districts, and villages tables",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seeder"
+                ],
+                "summary": "Clear all seeded data",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/seed/run": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Execute all seed SQL files in the correct order",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seeder"
+                ],
+                "summary": "Run all seeders",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/seed/run/{seed}": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Execute a specific seed SQL file",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seeder"
+                ],
+                "summary": "Run specific seeder",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Seed name (provinces, regencies, districts, villages_1, villages_2)",
+                        "name": "seed",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/seed/status": {
+            "get": {
+                "description": "Check which tables have been seeded and data counts",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Seeder"
+                ],
+                "summary": "Check seeder status",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/qurban-periods": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a paginated list of qurban periods. Optionally filter by year.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Qurban Periods"
+                ],
+                "summary": "List qurban periods",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by year (e.g. 2025)",
+                        "name": "year",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.QurbanPeriodListResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new qurban period for the authenticated mosque.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Qurban Periods"
+                ],
+                "summary": "Create a qurban period",
+                "parameters": [
+                    {
+                        "description": "Qurban period payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.QurbanPeriodRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.QurbanPeriodMutationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/qurban-periods/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deletes a qurban period by ID for the authenticated mosque.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Qurban Periods"
+                ],
+                "summary": "Delete a qurban period",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Qurban Period ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.QurbanPeriodMutationResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates an existing qurban period by ID for the authenticated mosque.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Qurban Periods"
+                ],
+                "summary": "Update a qurban period",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Qurban Period ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Qurban period payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.QurbanPeriodRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.QurbanPeriodMutationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "models.PaginatedMeta": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer",
+                    "example": 10
+                },
+                "page": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "total": {
+                    "type": "integer",
+                    "example": 100
+                },
+                "total_pages": {
+                    "type": "integer",
+                    "example": 10
+                }
+            }
+        },
+        "models.QurbanPeriodListResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.QurbanPeriodResponse"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/models.PaginatedMeta"
+                }
+            }
+        },
+        "models.QurbanPeriodMutationResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.QurbanPeriodResponse"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Qurban Period created successfully"
+                }
+            }
+        },
+        "models.QurbanPeriodRequest": {
+            "type": "object",
+            "required": [
+                "end_date",
+                "start_date",
+                "year"
+            ],
+            "properties": {
+                "description": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.QurbanPeriodResponse": {
+            "type": "object",
+            "properties": {
+                "created_at": {
+                    "type": "string"
+                },
+                "description": {
+                    "type": "string"
+                },
+                "end_date": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "start_date": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "year": {
+                    "type": "integer"
+                }
+            }
+        },
+        "models.SwaggerError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "NOT_FOUND"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Qurban period not found"
+                }
+            }
+        },
+        "models.SwaggerErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/models.SwaggerError"
+                }
+            }
+        },
+        "models.SwaggerValidationDetail": {
+            "type": "object",
+            "additionalProperties": {
+                "type": "string"
+            }
+        },
+        "models.SwaggerValidationError": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "string",
+                    "example": "VALIDATION_ERROR"
+                },
+                "details": {
+                    "$ref": "#/definitions/models.SwaggerValidationDetail"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Validation failed"
+                }
+            }
+        },
+        "models.SwaggerValidationErrorResponse": {
+            "type": "object",
+            "properties": {
+                "error": {
+                    "$ref": "#/definitions/models.SwaggerValidationError"
+                }
+            }
+        }
+    },
+    "securityDefinitions": {
+        "BearerAuth": {
+            "description": "Type \"Bearer\" followed by a space and JWT token.",
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}

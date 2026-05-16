@@ -25,7 +25,7 @@ func XenditVAWebhookHandler(c *gin.Context) {
 	// fmt.Printf("Received Xendit VA Webhook: %+v\n", payload)
 
 	if err := config.DB.Where("external_id = ?", payload.ExternalID).First(&transactionItems).Error; err != nil {
-		utils.ErrorResponse(c, http.StatusNotFound, "Transaction detail not found")
+		utils.ErrorResponse(c, http.StatusNotFound, "NOT_FOUND", "Transaction detail not found")
 		return
 	}
 

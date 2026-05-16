@@ -12,7 +12,7 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" || !strings.HasPrefix(authHeader, "Bearer ") {
-			c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "Unauthorized", "data": nil})
+			utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "Unauthorized")
 			c.Abort()
 			return
 		}
@@ -20,14 +20,14 @@ func JWTAuthMiddleware() gin.HandlerFunc {
 		tokenString := strings.TrimPrefix(authHeader, "Bearer ")
 		token, claims, err := utils.ParseToken(tokenString)
 		if err != nil || !token.Valid {
-			c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "Invalid token", "data": nil})
+			utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "Invalid token")
 			c.Abort()
 			return
 		}
 
 		userID, ok := claims["user_id"].(float64)
 		if !ok {
-			c.JSON(http.StatusUnauthorized, gin.H{"status": "error", "message": "Invalid token payload", "data": nil})
+			utils.ErrorResponse(c, http.StatusUnauthorized, "UNAUTHORIZED", "Invalid token payload")
 			c.Abort()
 			return
 		}

@@ -18,20 +18,20 @@ func NewTransactionController(repo repository.TransactionRepository) *Transactio
 }
 
 func (ctl *TransactionController) GetTransactions(c *gin.Context) {
-	data, code, entity, total, page, limit := ctl.Repo.Index(c)
-	utils.PaginatedResponse(c, data, code, entity, c.Request.Method, total, page, limit)
+	data, _, _, total, page, limit := ctl.Repo.Index(c)
+	utils.PaginatedResponse(c, data, total, page, limit)
 }
 
 func (ctl *TransactionController) GetTransactionsByMosqueID(ctx *gin.Context) {
 	// Get mosque member data from context
-	mosque, err, code, entity, errors := utils.GetMosqueMemberByContext(ctx)
+	mosque, err, code, errors := utils.GetMosqueMemberByContext(ctx)
 	if err != nil {
-		utils.HttpResponse(ctx, nil, code, entity, ctx.Request.Method, errors)
+		utils.HandleRepoError(ctx, code, errors)
 		return
 	}
 
-	data, statusCode, entityName, total, page, limit := ctl.Repo.IndexByMosqueID(ctx, mosque.UserID)
-	utils.PaginatedResponse(ctx, data, statusCode, entityName, ctx.Request.Method, total, page, limit)
+	data, _, _, total, page, limit := ctl.Repo.IndexByMosqueID(ctx, mosque.UserID)
+	utils.PaginatedResponse(ctx, data, total, page, limit)
 }
 
 func (ctl *TransactionController) CreateTransaction(ctx *gin.Context) {
@@ -42,16 +42,19 @@ func (ctl *TransactionController) CreateTransaction(ctx *gin.Context) {
 	}
 
 	// Get participant data from context
-	participant, err, code, entity, errors := utils.GetParticipantByContext(ctx)
+	participant, err, code, errors := utils.GetParticipantByContext(ctx)
 	if err != nil {
-		utils.HttpResponse(ctx, nil, code, entity, ctx.Request.Method, errors)
+		utils.HandleRepoError(ctx, code, errors)
 		return
 	}
 
 	transaction.CreatedByUserID = *participant.UserID
 
 	data, code, entity, errors := ctl.Repo.Create(&transaction)
-	utils.HttpResponse(ctx, data, code, entity, ctx.Request.Method, errors)
+	if utils.HandleRepoError(ctx, code, errors) {
+		return
+	}
+	utils.MutationResponse(ctx, code, utils.MutationMessage(entity, ctx.Request.Method), data)
 }
 
 func (ctl *TransactionController) UploadProof(ctx *gin.Context) {
@@ -64,13 +67,16 @@ func (ctl *TransactionController) UploadProof(ctx *gin.Context) {
 	// Get transaction ID from URL param
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		utils.HttpResponse(ctx, nil, 400, "transaction", ctx.Request.Method, map[string]string{"id": "Invalid transaction ID"})
+		utils.ValidationErrorResponse(ctx, map[string]string{"id": "Invalid transaction ID"})
 		return
 	}
 	payload.ID = uint(id)
 
 	data, code, entity, errors := ctl.Repo.UpdateProof(&payload)
-	utils.HttpResponse(ctx, data, code, entity, ctx.Request.Method, errors)
+	if utils.HandleRepoError(ctx, code, errors) {
+		return
+	}
+	utils.MutationResponse(ctx, code, utils.MutationMessage(entity, ctx.Request.Method), data)
 }
 
 func (ctl *TransactionController) VerifyTransaction(ctx *gin.Context) {
@@ -83,14 +89,14 @@ func (ctl *TransactionController) VerifyTransaction(ctx *gin.Context) {
 	// Get transaction ID from URL param
 	id, err := strconv.Atoi(ctx.Param("id"))
 	if err != nil {
-		utils.HttpResponse(ctx, nil, 400, "transaction", ctx.Request.Method, map[string]string{"id": "Invalid transaction ID"})
+		utils.ValidationErrorResponse(ctx, map[string]string{"id": "Invalid transaction ID"})
 		return
 	}
 
 	// Get mosque member data from context
-	mosque, err, code, entity, errors := utils.GetMosqueMemberByContext(ctx)
+	mosque, err, code, errors := utils.GetMosqueMemberByContext(ctx)
 	if err != nil {
-		utils.HttpResponse(ctx, nil, code, entity, ctx.Request.Method, errors)
+		utils.HandleRepoError(ctx, code, errors)
 		return
 	}
 
@@ -98,10 +104,16 @@ func (ctl *TransactionController) VerifyTransaction(ctx *gin.Context) {
 	payload.VerifiedByUserID = mosque.UserID
 
 	data, code, entity, errors := ctl.Repo.Verify(&payload)
-	utils.HttpResponse(ctx, data, code, entity, ctx.Request.Method, errors)
+	if utils.HandleRepoError(ctx, code, errors) {
+		return
+	}
+	utils.MutationResponse(ctx, code, utils.MutationMessage(entity, ctx.Request.Method), data)
 }
 
 func (ctl *TransactionController) CancelExpiredTransactions(ctx *gin.Context) {
 	data, code, entity, errors := ctl.Repo.MarkExpiredPendingTransactions()
-	utils.HttpResponse(ctx, data, code, entity, ctx.Request.Method, errors)
+	if utils.HandleRepoError(ctx, code, errors) {
+		return
+	}
+	utils.MutationResponse(ctx, code, utils.MutationMessage(entity, ctx.Request.Method), data)
 }

@@ -8,6 +8,8 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 func SetupRoutes(r *gin.Engine) {
@@ -45,6 +47,9 @@ func SetupRoutes(r *gin.Engine) {
 	auth.POST("/register/participant", RegisterController.RegisterParticipant)
 	auth.POST("/register/mosque", RegisterController.RegisterMosque)
 	auth.POST("/login", LoginController.Login)
+
+	// swagger docs
+	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	api := r.Group("/api")
 

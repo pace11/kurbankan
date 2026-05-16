@@ -36,3 +36,16 @@ type QurbanPeriod struct {
 func (QurbanPeriod) TableName() string {
 	return "qurban_periods"
 }
+
+// ========== Payloads (Request DTOs) ==========
+
+type QurbanPeriodRequest struct {
+	Year        int       `json:"year" binding:"required"`
+	StartDate   time.Time `json:"start_date" binding:"required"`
+	EndDate     time.Time `json:"end_date" binding:"required"`
+	Description *string   `json:"description,omitempty"`
+
+	// Not provided in payload
+	MosqueID uint `json:"-"`
+	ID       uint `json:"-"`
+}

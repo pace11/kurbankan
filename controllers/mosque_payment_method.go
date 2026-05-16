@@ -23,14 +23,17 @@ func (ctl *MosquePaymentMethodController) Create(ctx *gin.Context) {
 		return
 	}
 
-	mosque, err, code, entity, errors := utils.GetMosqueMemberByContext(ctx)
+	mosque, err, code, errors := utils.GetMosqueMemberByContext(ctx)
 	if err != nil {
-		utils.HttpResponse(ctx, nil, code, entity, ctx.Request.Method, errors)
+		utils.HandleRepoError(ctx, code, errors)
 		return
 	}
 
 	payload.MosqueID = mosque.ID
 
 	data, code, entity, errors := ctl.Repo.Create(&payload)
-	utils.HttpResponse(ctx, data, code, entity, ctx.Request.Method, errors)
+	if utils.HandleRepoError(ctx, code, errors) {
+		return
+	}
+	utils.MutationResponse(ctx, code, utils.MutationMessage(entity, ctx.Request.Method), data)
 }

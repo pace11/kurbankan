@@ -23,8 +23,8 @@ func (ctl *UserController) GetUsers(c *gin.Context) {
 		"role":  c.Query("role"),
 	}
 
-	data, code, entity, total, page, limit := ctl.Repo.Index(c, filters)
-	utils.PaginatedResponse(c, data, code, entity, c.Request.Method, total, page, limit)
+	data, _, _, total, page, limit := ctl.Repo.Index(c, filters)
+	utils.PaginatedResponse(c, data, total, page, limit)
 }
 
 func (ctl *UserController) UpdateUser(c *gin.Context) {
@@ -36,5 +36,8 @@ func (ctl *UserController) UpdateUser(c *gin.Context) {
 	}
 
 	data, code, entity, errors := ctl.Repo.Update(uint(id), &user)
-	utils.HttpResponse(c, data, code, entity, c.Request.Method, errors)
+	if utils.HandleRepoError(c, code, errors) {
+		return
+	}
+	utils.MutationResponse(c, code, utils.MutationMessage(entity, c.Request.Method), data)
 }

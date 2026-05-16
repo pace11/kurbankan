@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"net/http"
 	"reflect"
 	"regexp"
 	"strings"
@@ -51,7 +50,7 @@ func BindAndValidate(c *gin.Context, form any) error {
 				out[jsonField] = getErrorMessage(fe, jsonField)
 			}
 
-			HttpResponse(c, nil, http.StatusBadRequest, "data", c.Request.Method, out)
+			ValidationErrorResponse(c, out)
 			return err
 		}
 
@@ -59,13 +58,13 @@ func BindAndValidate(c *gin.Context, form any) error {
 		var unmarshalTypeError *json.UnmarshalTypeError
 		if errors.As(err, &unmarshalTypeError) {
 			errorMap := parseUnmarshalError(unmarshalTypeError, reflect.TypeOf(form).Elem())
-			HttpResponse(c, nil, http.StatusBadRequest, "data", c.Request.Method, errorMap)
+			ValidationErrorResponse(c, errorMap)
 			return err
 		}
 
 		// Handle other JSON syntax errors
 		errorMap := parseGenericJSONError(err.Error())
-		HttpResponse(c, nil, http.StatusBadRequest, "data", c.Request.Method, errorMap)
+		ValidationErrorResponse(c, errorMap)
 		return err
 	}
 	return nil

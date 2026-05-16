@@ -23,8 +23,8 @@ func (ctl *QurbanOfferingController) GetQurbanOfferings(ctx *gin.Context) {
 		"scheme_type": ctx.Query("scheme_type"),
 	}
 
-	data, code, entity, total, page, limit := ctl.Repo.Index(ctx, filters)
-	utils.PaginatedResponse(ctx, data, code, entity, ctx.Request.Method, total, page, limit)
+	data, _, _, total, page, limit := ctl.Repo.Index(ctx, filters)
+	utils.PaginatedResponse(ctx, data, total, page, limit)
 }
 
 func (ctl *QurbanOfferingController) CreateQurbanOffering(ctx *gin.Context) {
@@ -35,7 +35,10 @@ func (ctl *QurbanOfferingController) CreateQurbanOffering(ctx *gin.Context) {
 	}
 
 	data, code, entity, errors := ctl.Repo.Save(&qurbanOffering)
-	utils.HttpResponse(ctx, data, code, entity, ctx.Request.Method, errors)
+	if utils.HandleRepoError(ctx, code, errors) {
+		return
+	}
+	utils.MutationResponse(ctx, code, utils.MutationMessage(entity, ctx.Request.Method), data)
 }
 
 func (ctl *QurbanOfferingController) UpdateQurbanOffering(ctx *gin.Context) {
@@ -47,11 +50,17 @@ func (ctl *QurbanOfferingController) UpdateQurbanOffering(ctx *gin.Context) {
 	}
 
 	data, code, entity, errors := ctl.Repo.Update(uint(id), &qurbanOffering)
-	utils.HttpResponse(ctx, data, code, entity, ctx.Request.Method, errors)
+	if utils.HandleRepoError(ctx, code, errors) {
+		return
+	}
+	utils.MutationResponse(ctx, code, utils.MutationMessage(entity, ctx.Request.Method), data)
 }
 
 func (ctl *QurbanOfferingController) DeleteQurbanOffering(ctx *gin.Context) {
 	id, _ := strconv.Atoi(ctx.Param("id"))
 	data, code, entity, errors := ctl.Repo.Delete(uint(id))
-	utils.HttpResponse(ctx, data, code, entity, ctx.Request.Method, errors)
+	if utils.HandleRepoError(ctx, code, errors) {
+		return
+	}
+	utils.MutationResponse(ctx, code, utils.MutationMessage(entity, ctx.Request.Method), data)
 }
