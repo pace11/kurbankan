@@ -11,7 +11,8 @@ import (
 )
 
 type QurbanPeriodRepository interface {
-	Index(c *gin.Context, filters map[string]any) ([]models.QurbanPeriodResponse, int, any, int64, int, int)
+	ListOptions(ctx *gin.Context, mosqueID uint) []models.QurbanPeriodResponse
+	ListWithPagination(ctx *gin.Context, mosqueID uint, filters map[string]any) ([]models.QurbanPeriodResponse, int64, int, int)
 	Save(payload *models.QurbanPeriodRequest) (any, int, string, map[string]string)
 	Update(payload *models.QurbanPeriodRequest) (any, int, string, map[string]string)
 	Delete(id uint) (any, int, string, map[string]string)
@@ -23,14 +24,35 @@ func NewQurbanPeriodRepository() QurbanPeriodRepository {
 	return &qurbanPeriodRepo{}
 }
 
-func (r *qurbanPeriodRepo) Index(c *gin.Context, filters map[string]any) ([]models.QurbanPeriodResponse, int, any, int64, int, int) {
+func (r *qurbanPeriodRepo) ListOptions(ctx *gin.Context, mosqueID uint) []models.QurbanPeriodResponse {
+	var qurbanPeriods []models.QurbanPeriod
+
+	config.DB.Model(&models.QurbanPeriod{}).Where("mosque_id = ?", mosqueID).Find(&qurbanPeriods)
+
+	var response []models.QurbanPeriodResponse
+	for _, q := range qurbanPeriods {
+		response = append(response, models.QurbanPeriodResponse{
+			ID:          q.ID,
+			Year:        q.Year,
+			StartDate:   q.StartDate,
+			EndDate:     q.EndDate,
+			Description: q.Description,
+			CreatedAt:   q.CreatedAt,
+			UpdatedAt:   q.UpdatedAt,
+		})
+	}
+
+	return response
+}
+
+func (r *qurbanPeriodRepo) ListWithPagination(ctx *gin.Context, mosqueID uint, filters map[string]any) ([]models.QurbanPeriodResponse, int64, int, int) {
 	var qurbanPeriods []models.QurbanPeriod
 	var total int64
 
-	query := utils.FilterByParams(config.DB.Model(&models.QurbanPeriod{}), filters)
+	query := utils.FilterByParams(config.DB.Model(&models.QurbanPeriod{}).Where("mosque_id = ?", mosqueID), filters)
 	query.Count(&total)
 
-	paginatedQuery, page, limit := utils.ApplyPagination(c, query)
+	paginatedQuery, page, limit := utils.ApplyPagination(ctx, query)
 	paginatedQuery.Find(&qurbanPeriods)
 
 	var response []models.QurbanPeriodResponse
@@ -46,7 +68,7 @@ func (r *qurbanPeriodRepo) Index(c *gin.Context, filters map[string]any) ([]mode
 		})
 	}
 
-	return response, http.StatusOK, "qurban period", total, page, limit
+	return response, total, page, limit
 }
 
 func (r *qurbanPeriodRepo) Save(payload *models.QurbanPeriodRequest) (any, int, string, map[string]string) {

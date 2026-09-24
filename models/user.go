@@ -7,9 +7,11 @@ import (
 type PlatformRole string
 
 const (
-	PlatformRoleOwner   PlatformRole = "owner"
-	PlatformRoleAdmin   PlatformRole = "admin"
-	PlatformRoleSupport PlatformRole = "support"
+	PlatformRoleOwner       PlatformRole = "owner"
+	PlatformRoleAdmin       PlatformRole = "admin"
+	PlatformRoleSupport     PlatformRole = "support"
+	PlatformRoleMosque      PlatformRole = "mosque"
+	PlatformRoleParticipant PlatformRole = "participant"
 )
 
 type UserResponse struct {
@@ -56,4 +58,12 @@ func IsPlatformRoleAdmin(role string) bool {
 
 func IsPlatformRoleSupport(role string) bool {
 	return role == string(PlatformRoleSupport)
+}
+
+func IsPlatformRoleMosque(role string) bool {
+	return role == string(PlatformRoleMosque)
+}
+
+func IsPlatformRoleParticipant(role string) bool {
+	return role == string(PlatformRoleParticipant)
 }

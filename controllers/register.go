@@ -23,7 +23,7 @@ func (ctl *RegisterController) RegisterParticipant(ctx *gin.Context) {
 		return
 	}
 
-	data, code, _, errors := ctl.Repo.SaveParticipant(&payload)
+	data, code, errors := ctl.Repo.SaveParticipant(&payload)
 	if utils.HandleRepoError(ctx, code, errors) {
 		return
 	}
@@ -37,7 +37,7 @@ func (ctl *RegisterController) RegisterMosque(ctx *gin.Context) {
 		return
 	}
 
-	data, code, _, errors := ctl.Repo.SaveMosque(&payload)
+	data, code, errors := ctl.Repo.SaveMosque(&payload)
 	if utils.HandleRepoError(ctx, code, errors) {
 		return
 	}

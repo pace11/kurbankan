@@ -83,13 +83,14 @@ func SetupRoutes(r *gin.Engine) {
 	api.Use(middlewares.JWTAuthMiddleware())
 
 	// qurban-periods
-	api.GET("/qurban-periods", QurbanPeriodController.GetQurbanPeriods)
+	api.GET("/qurban-periods/options", QurbanPeriodController.GetQurbanPeriodOptions)
+	api.GET("/qurban-periods", QurbanPeriodController.GetQurbanPeriodsWithPagination)
 	api.POST("/qurban-periods", QurbanPeriodController.CreateQurbanPeriod)
 	api.PATCH("/qurban-periods/:id", QurbanPeriodController.UpdateQurbanPeriod)
 	api.DELETE("/qurban-periods/:id", QurbanPeriodController.DeleteQurbanPeriod)
 
 	// qurban-offerings
-	api.GET("/qurban-offerings", QurbanOfferingController.GetQurbanOfferings)
+	api.GET("/qurban-offerings", QurbanOfferingController.GetQurbanOfferingsWithPagination)
 	api.POST("/qurban-offerings", QurbanOfferingController.CreateQurbanOffering)
 	api.PATCH("/qurban-offerings/:id", QurbanOfferingController.UpdateQurbanOffering)
 	api.DELETE("/qurban-offerings/:id", QurbanOfferingController.DeleteQurbanOffering)

@@ -10,9 +10,9 @@ import (
 )
 
 type QurbanOfferingRepository interface {
-	Index(c *gin.Context, filters map[string]any) ([]models.QurbanOfferingResponse, int, any, int64, int, int)
-	Save(qurbanOffering *models.QurbanOffering) (any, int, string, map[string]string)
-	Update(id uint, qurbanOffering *models.QurbanOffering) (any, int, string, map[string]string)
+	ListWithPagination(c *gin.Context, mosqueID uint, filters map[string]any) ([]models.QurbanOfferingResponse, int64, int, int)
+	Save(payload *models.QurbanOfferingRequest) (any, int, string, map[string]string)
+	Update(payload *models.QurbanOfferingRequest) (any, int, string, map[string]string)
 	Delete(id uint) (any, int, string, map[string]string)
 }
 
@@ -22,11 +22,11 @@ func NewQurbanOfferingRepository() QurbanOfferingRepository {
 	return &qurbanOfferingRepo{}
 }
 
-func (r *qurbanOfferingRepo) Index(c *gin.Context, filters map[string]any) ([]models.QurbanOfferingResponse, int, any, int64, int, int) {
+func (r *qurbanOfferingRepo) ListWithPagination(c *gin.Context, mosqueID uint, filters map[string]any) ([]models.QurbanOfferingResponse, int64, int, int) {
 	var qurbanOfferings []models.QurbanOffering
 	var total int64
 
-	query := utils.FilterByParams(config.DB.Model(&models.QurbanOffering{}).Preload("Mosque"), filters)
+	query := utils.FilterByParams(config.DB.Model(&models.QurbanOffering{}).Preload("Mosque").Where("mosque_id = ?", mosqueID), filters)
 	query.Count(&total)
 
 	paginatedQuery, page, limit := utils.ApplyPagination(c, query)
@@ -50,10 +50,21 @@ func (r *qurbanOfferingRepo) Index(c *gin.Context, filters map[string]any) ([]mo
 		})
 	}
 
-	return response, http.StatusOK, "qurban offering", total, page, limit
+	return response, total, page, limit
 }
 
-func (r *qurbanOfferingRepo) Save(qurbanOffering *models.QurbanOffering) (any, int, string, map[string]string) {
+func (r *qurbanOfferingRepo) Save(payload *models.QurbanOfferingRequest) (any, int, string, map[string]string) {
+	qurbanOffering := &models.QurbanOffering{
+		QurbanPeriodID: payload.QurbanPeriodID,
+		AnimalType:     payload.AnimalType,
+		SchemeType:     payload.SchemeType,
+		Name:           payload.Name,
+		Price:          payload.Price,
+		Capacity:       payload.Capacity,
+		Status:         payload.Status,
+		MosqueID:       payload.MosqueID,
+	}
+
 	if err := config.DB.Create(qurbanOffering).Error; err != nil {
 		return nil, http.StatusInternalServerError, "qurban offering", nil
 	}
@@ -61,14 +72,23 @@ func (r *qurbanOfferingRepo) Save(qurbanOffering *models.QurbanOffering) (any, i
 	return qurbanOffering, http.StatusCreated, "qurban offering", nil
 }
 
-func (r *qurbanOfferingRepo) Update(id uint, qurbanOffering *models.QurbanOffering) (any, int, string, map[string]string) {
+func (r *qurbanOfferingRepo) Update(payload *models.QurbanOfferingRequest) (any, int, string, map[string]string) {
 	var existing models.QurbanOffering
 
-	if err := config.DB.First(&existing, id).Error; err != nil {
+	if err := config.DB.First(&existing, payload.ID).Error; err != nil {
 		return nil, http.StatusNotFound, "qurban offering", nil
 	}
 
-	if err := config.DB.Model(&existing).Updates(&qurbanOffering).Error; err != nil {
+	// Update fields
+	existing.QurbanPeriodID = payload.QurbanPeriodID
+	existing.AnimalType = payload.AnimalType
+	existing.SchemeType = payload.SchemeType
+	existing.Name = payload.Name
+	existing.Price = payload.Price
+	existing.Capacity = payload.Capacity
+	existing.Status = payload.Status
+
+	if err := config.DB.Model(&existing).Updates(&existing).Error; err != nil {
 		return nil, http.StatusInternalServerError, "qurban offering", nil
 	}
 

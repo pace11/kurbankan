@@ -10,8 +10,8 @@ import (
 )
 
 type MosqueRepository interface {
-	Index(c *gin.Context, filters map[string]any) ([]models.MosqueResponse, int, any, int64, int, int)
-	Show(id uint) (*models.MosqueResponse, int, string, map[string]string)
+	ListWithPagination(ctx *gin.Context, filters map[string]any) ([]models.MosqueResponse, int64, int, int)
+	Show(id uint) (*models.MosqueResponse, int, map[string]string)
 	Save(mosque *models.UserCreatePayload) (any, int, string, map[string]string)
 	Update(id uint, mosque *models.UserUpdatePayload) (any, int, string, map[string]string)
 	Delete(id uint) (any, int, string, map[string]string)
@@ -23,20 +23,21 @@ func NewMosqueRepository() MosqueRepository {
 	return &mosqueRepository{}
 }
 
-func (r *mosqueRepository) Index(c *gin.Context, filters map[string]any) ([]models.MosqueResponse, int, any, int64, int, int) {
+func (r *mosqueRepository) ListWithPagination(ctx *gin.Context, filters map[string]any) ([]models.MosqueResponse, int64, int, int) {
 	var mosques []models.Mosque
 	var total int64
 
 	query := utils.FilterByParams(config.DB.Model(&models.Mosque{}).Preload("Province").Preload("Regency").Preload("District").Preload("Village").Preload("User"), filters)
 	query.Count(&total)
 
-	paginatedQuery, page, limit := utils.ApplyPagination(c, query)
+	paginatedQuery, page, limit := utils.ApplyPagination(ctx, query)
 	paginatedQuery.Find(&mosques)
 
 	var response []models.MosqueResponse
 	for _, m := range mosques {
 		response = append(response, models.MosqueResponse{
 			ID:        m.ID,
+			UUID:      m.UUID,
 			Name:      m.Name,
 			Address:   m.Address,
 			Photos:    m.Photos,
@@ -50,19 +51,20 @@ func (r *mosqueRepository) Index(c *gin.Context, filters map[string]any) ([]mode
 		})
 	}
 
-	return response, http.StatusOK, "mosque", total, page, limit
+	return response, total, page, limit
 }
 
-func (r *mosqueRepository) Show(id uint) (*models.MosqueResponse, int, string, map[string]string) {
+func (r *mosqueRepository) Show(id uint) (*models.MosqueResponse, int, map[string]string) {
 	var mosque models.Mosque
 	err := config.DB.Preload("Province").Preload("Regency").Preload("District").Preload("Village").Preload("User").Where("id = ?", id).First(&mosque).Error
 
 	if err != nil {
-		return nil, http.StatusInternalServerError, "mosque", nil
+		return nil, http.StatusInternalServerError, nil
 	}
 
 	response := &models.MosqueResponse{
 		ID:        mosque.ID,
+		UUID:      mosque.UUID,
 		Name:      mosque.Name,
 		Address:   mosque.Address,
 		Photos:    mosque.Photos,
@@ -74,7 +76,7 @@ func (r *mosqueRepository) Show(id uint) (*models.MosqueResponse, int, string, m
 		CreatedAt: mosque.CreatedAt,
 		UpdatedAt: mosque.UpdatedAt,
 	}
-	return response, http.StatusOK, "mosque", nil
+	return response, http.StatusOK, nil
 }
 
 func (r *mosqueRepository) Save(mosque *models.UserCreatePayload) (any, int, string, map[string]string) {

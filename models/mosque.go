@@ -3,11 +3,13 @@ package models
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"gorm.io/gorm"
 )
 
 type MosqueResponse struct {
 	ID        uint          `json:"id"`
+	UUID      string        `json:"uuid"`
 	Name      string        `json:"name"`
 	Address   *string       `json:"address"`
 	Photos    *string       `json:"photos"`
@@ -21,8 +23,9 @@ type MosqueResponse struct {
 }
 
 type Mosque struct {
-	ID     uint `json:"id" gorm:"primaryKey"`
-	UserID uint `json:"user_id"`
+	ID     uint   `json:"id" gorm:"primaryKey"`
+	UUID   string `json:"uuid" gorm:"type:char(36);uniqueIndex;not null"`
+	UserID uint   `json:"user_id"`
 
 	Name         string  `json:"name" gorm:"type:text;not null"`
 	Address      *string `json:"address"`
@@ -45,4 +48,9 @@ type Mosque struct {
 
 func (Mosque) TableName() string {
 	return "mosques"
+}
+
+func (m *Mosque) BeforeCreate(tx *gorm.DB) error {
+	m.UUID = uuid.New().String()
+	return nil
 }

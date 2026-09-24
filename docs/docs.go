@@ -279,6 +279,246 @@ const docTemplate = `{
                 }
             }
         },
+        "/qurban-offerings": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a paginated list of qurban offerings. Optionally filter by animal type and scheme type.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Qurban Offerings"
+                ],
+                "summary": "List qurban offerings",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Filter by animal type (e.g. cow, goat)",
+                        "name": "animal_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Filter by scheme type (e.g. regular, premium)",
+                        "name": "scheme_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 1,
+                        "description": "Page number",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "default": 10,
+                        "description": "Items per page",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.QurbanOfferingListWithPaginationResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Creates a new qurban offering for the authenticated mosque.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Qurban Offerings"
+                ],
+                "summary": "Create a qurban offering",
+                "parameters": [
+                    {
+                        "description": "Qurban offering payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.QurbanOfferingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/models.QurbanOfferingMutationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/qurban-offerings/{id}": {
+            "delete": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Deletes a qurban offering by ID for the authenticated mosque.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Qurban Offerings"
+                ],
+                "summary": "Delete a qurban offering",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Qurban Offering ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.QurbanOfferingMutationResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Updates an existing qurban offering by ID for the authenticated mosque.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Qurban Offerings"
+                ],
+                "summary": "Update a qurban offering",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Qurban Offering ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Qurban offering payload",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/models.QurbanOfferingRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.QurbanOfferingMutationResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerValidationErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/qurban-periods": {
             "get": {
                 "security": [
@@ -320,7 +560,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/models.QurbanPeriodListResponse"
+                            "$ref": "#/definitions/models.QurbanPeriodListWithPaginationResponse"
                         }
                     },
                     "401": {
@@ -386,6 +626,37 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/models.SwaggerErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/qurban-periods/options": {
+            "get": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Returns a list of qurban period options for dropdowns or selection inputs.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Qurban Periods"
+                ],
+                "summary": "List qurban period options",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/models.QurbanPeriodOptionsResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/models.SwaggerErrorResponse"
                         }
@@ -536,7 +807,144 @@ const docTemplate = `{
                 }
             }
         },
-        "models.QurbanPeriodListResponse": {
+        "models.QurbanAnimalType": {
+            "type": "string",
+            "enum": [
+                "cow",
+                "goat"
+            ],
+            "x-enum-varnames": [
+                "Cow",
+                "Goat"
+            ]
+        },
+        "models.QurbanOfferingListWithPaginationResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.QurbanOfferingResponse"
+                    }
+                },
+                "meta": {
+                    "$ref": "#/definitions/models.PaginatedMeta"
+                }
+            }
+        },
+        "models.QurbanOfferingMutationResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "$ref": "#/definitions/models.QurbanOfferingResponse"
+                },
+                "message": {
+                    "type": "string",
+                    "example": "Qurban Offering created successfully"
+                }
+            }
+        },
+        "models.QurbanOfferingRequest": {
+            "type": "object",
+            "required": [
+                "animal_type",
+                "capacity",
+                "name",
+                "price",
+                "qurban_period_id",
+                "scheme_type"
+            ],
+            "properties": {
+                "animal_type": {
+                    "enum": [
+                        "cow",
+                        "goat"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.QurbanAnimalType"
+                        }
+                    ]
+                },
+                "capacity": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string",
+                    "maxLength": 100
+                },
+                "price": {
+                    "type": "number"
+                },
+                "qurban_period_id": {
+                    "type": "integer"
+                },
+                "scheme_type": {
+                    "enum": [
+                        "group",
+                        "individual"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.QurbanSchemeType"
+                        }
+                    ]
+                },
+                "status": {
+                    "enum": [
+                        "open",
+                        "closed"
+                    ],
+                    "allOf": [
+                        {
+                            "$ref": "#/definitions/models.QurbanStatus"
+                        }
+                    ]
+                }
+            }
+        },
+        "models.QurbanOfferingResponse": {
+            "type": "object",
+            "properties": {
+                "animal_type": {
+                    "$ref": "#/definitions/models.QurbanAnimalType"
+                },
+                "capacity": {
+                    "type": "integer"
+                },
+                "confirmed_slots": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "filled_slots": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "price": {
+                    "type": "number"
+                },
+                "qurban_period_id": {
+                    "type": "integer"
+                },
+                "scheme_type": {
+                    "$ref": "#/definitions/models.QurbanSchemeType"
+                },
+                "status": {
+                    "$ref": "#/definitions/models.QurbanStatus"
+                },
+                "updated_at": {
+                    "type": "string"
+                }
+            }
+        },
+        "models.QurbanPeriodListWithPaginationResponse": {
             "type": "object",
             "properties": {
                 "data": {
@@ -559,6 +967,17 @@ const docTemplate = `{
                 "message": {
                     "type": "string",
                     "example": "Qurban Period created successfully"
+                }
+            }
+        },
+        "models.QurbanPeriodOptionsResponse": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/models.QurbanPeriodResponse"
+                    }
                 }
             }
         },
@@ -609,6 +1028,28 @@ const docTemplate = `{
                     "type": "integer"
                 }
             }
+        },
+        "models.QurbanSchemeType": {
+            "type": "string",
+            "enum": [
+                "group",
+                "individual"
+            ],
+            "x-enum-varnames": [
+                "Group",
+                "Individual"
+            ]
+        },
+        "models.QurbanStatus": {
+            "type": "string",
+            "enum": [
+                "open",
+                "closed"
+            ],
+            "x-enum-varnames": [
+                "Open",
+                "Closed"
+            ]
         },
         "models.SwaggerError": {
             "type": "object",

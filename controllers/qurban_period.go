@@ -17,7 +17,28 @@ func NewQurbanPeriodController(repo repository.QurbanPeriodRepository) *QurbanPe
 	return &QurbanPeriodController{Repo: repo}
 }
 
-// GetQurbanPeriods godoc
+// GetQurbanPeriodOptions godoc
+// @Summary      List qurban period options
+// @Description  Returns a list of qurban period options for dropdowns or selection inputs.
+// @Tags         Qurban Periods
+// @Produce      json
+// @Security     BearerAuth
+// @Success      200 {object} models.QurbanPeriodOptionsResponse
+// @Failure      401 {object} models.SwaggerErrorResponse
+// @Router       /qurban-periods/options [get]
+func (ctl *QurbanPeriodController) GetQurbanPeriodOptions(ctx *gin.Context) {
+	// Get mosque member data from context
+	mosque, err, code, errors := utils.GetMosqueMemberByContext(ctx)
+	if err != nil {
+		utils.HandleRepoError(ctx, code, errors)
+		return
+	}
+
+	data := ctl.Repo.ListOptions(ctx, mosque.MosqueID)
+	utils.DetailResponse(ctx, data)
+}
+
+// GetQurbanPeriodsWithPagination godoc
 // @Summary      List qurban periods
 // @Description  Returns a paginated list of qurban periods. Optionally filter by year.
 // @Tags         Qurban Periods
@@ -26,15 +47,22 @@ func NewQurbanPeriodController(repo repository.QurbanPeriodRepository) *QurbanPe
 // @Param        year   query     string  false  "Filter by year (e.g. 2025)"
 // @Param        page   query     int     false  "Page number"          default(1)
 // @Param        limit  query     int     false  "Items per page"       default(10)
-// @Success      200    {object}  models.QurbanPeriodListResponse
+// @Success      200    {object}  models.QurbanPeriodListWithPaginationResponse
 // @Failure      401    {object}  models.SwaggerErrorResponse
 // @Router       /qurban-periods [get]
-func (ctl *QurbanPeriodController) GetQurbanPeriods(ctx *gin.Context) {
+func (ctl *QurbanPeriodController) GetQurbanPeriodsWithPagination(ctx *gin.Context) {
+	// Get mosque member data from context
+	mosque, err, code, errors := utils.GetMosqueMemberByContext(ctx)
+	if err != nil {
+		utils.HandleRepoError(ctx, code, errors)
+		return
+	}
+
 	filters := map[string]any{
 		"year": ctx.Query("year"),
 	}
 
-	data, _, _, total, page, limit := ctl.Repo.Index(ctx, filters)
+	data, total, page, limit := ctl.Repo.ListWithPagination(ctx, mosque.MosqueID, filters)
 	utils.PaginatedResponse(ctx, data, total, page, limit)
 }
 

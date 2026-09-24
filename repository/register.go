@@ -8,8 +8,8 @@ import (
 )
 
 type RegisterRepository interface {
-	SaveParticipant(participant *models.UserCreatePayload) (any, int, string, map[string]string)
-	SaveMosque(mosque *models.UserCreatePayload) (any, int, string, map[string]string)
+	SaveParticipant(participant *models.UserCreatePayload) (any, int, map[string]string)
+	SaveMosque(mosque *models.UserCreatePayload) (any, int, map[string]string)
 }
 
 type registerRepository struct{}
@@ -18,23 +18,26 @@ func NewRegisterRepository() RegisterRepository {
 	return &registerRepository{}
 }
 
-func (r *registerRepository) SaveParticipant(participant *models.UserCreatePayload) (any, int, string, map[string]string) {
+func (r *registerRepository) SaveParticipant(participant *models.UserCreatePayload) (any, int, map[string]string) {
 	tx := config.DB.Begin()
 
 	hashed, err := utils.HashPassword(participant.Password)
 	if err != nil {
 		tx.Rollback()
-		return nil, http.StatusInternalServerError, "participant", nil
+		return nil, http.StatusInternalServerError, nil
 	}
 
+	// Create user first
+	platformRole := models.PlatformRoleParticipant
 	userToCreate := models.User{
-		Email:    participant.Email,
-		Password: hashed,
+		Email:        participant.Email,
+		Password:     hashed,
+		PlatformRole: &platformRole,
 	}
 
 	if err := tx.Save(&userToCreate).Error; err != nil {
 		tx.Rollback()
-		return nil, http.StatusInternalServerError, "participant", nil
+		return nil, http.StatusInternalServerError, nil
 	}
 
 	participantCreate := models.Participant{
@@ -51,34 +54,36 @@ func (r *registerRepository) SaveParticipant(participant *models.UserCreatePaylo
 
 	if err := tx.Save(&participantCreate).Error; err != nil {
 		tx.Rollback()
-		return nil, http.StatusInternalServerError, "participant", nil
+		return nil, http.StatusInternalServerError, nil
 	}
 
 	if tx.Commit().Error != nil {
-		return nil, http.StatusInternalServerError, "trx participant", nil
+		return nil, http.StatusInternalServerError, nil
 	}
 
-	return participant, http.StatusCreated, "participant", nil
+	return participant, http.StatusCreated, nil
 }
 
-func (r *registerRepository) SaveMosque(mosque *models.UserCreatePayload) (any, int, string, map[string]string) {
+func (r *registerRepository) SaveMosque(mosque *models.UserCreatePayload) (any, int, map[string]string) {
 	tx := config.DB.Begin()
 
 	hashed, err := utils.HashPassword(mosque.Password)
 	if err != nil {
 		tx.Rollback()
-		return nil, http.StatusInternalServerError, "mosque", nil
+		return nil, http.StatusInternalServerError, nil
 	}
 
 	// Create user first
+	platformRole := models.PlatformRoleMosque
 	userToCreate := models.User{
-		Email:    mosque.Email,
-		Password: hashed,
+		Email:        mosque.Email,
+		Password:     hashed,
+		PlatformRole: &platformRole,
 	}
 
 	if err := tx.Save(&userToCreate).Error; err != nil {
 		tx.Rollback()
-		return nil, http.StatusInternalServerError, "mosque", nil
+		return nil, http.StatusInternalServerError, nil
 	}
 
 	// Then create mosque with the created user's ID
@@ -95,7 +100,7 @@ func (r *registerRepository) SaveMosque(mosque *models.UserCreatePayload) (any, 
 
 	if err := tx.Save(&mosqueCreate).Error; err != nil {
 		tx.Rollback()
-		return nil, http.StatusInternalServerError, "mosque", nil
+		return nil, http.StatusInternalServerError, nil
 	}
 
 	// Create mosque member with the created user's ID and mosque's ID, and set role as admin
@@ -107,12 +112,12 @@ func (r *registerRepository) SaveMosque(mosque *models.UserCreatePayload) (any, 
 
 	if err := tx.Save(&mosqueMemberCreate).Error; err != nil {
 		tx.Rollback()
-		return nil, http.StatusInternalServerError, "mosque member", nil
+		return nil, http.StatusInternalServerError, nil
 	}
 
 	if tx.Commit().Error != nil {
-		return nil, http.StatusInternalServerError, "trx mosque", nil
+		return nil, http.StatusInternalServerError, nil
 	}
 
-	return mosque, http.StatusCreated, "mosque", nil
+	return mosque, http.StatusCreated, nil
 }

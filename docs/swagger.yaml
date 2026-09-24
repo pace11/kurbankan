@@ -15,7 +15,96 @@ definitions:
         example: 10
         type: integer
     type: object
-  models.QurbanPeriodListResponse:
+  models.QurbanAnimalType:
+    enum:
+    - cow
+    - goat
+    type: string
+    x-enum-varnames:
+    - Cow
+    - Goat
+  models.QurbanOfferingListWithPaginationResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.QurbanOfferingResponse'
+        type: array
+      meta:
+        $ref: '#/definitions/models.PaginatedMeta'
+    type: object
+  models.QurbanOfferingMutationResponse:
+    properties:
+      data:
+        $ref: '#/definitions/models.QurbanOfferingResponse'
+      message:
+        example: Qurban Offering created successfully
+        type: string
+    type: object
+  models.QurbanOfferingRequest:
+    properties:
+      animal_type:
+        allOf:
+        - $ref: '#/definitions/models.QurbanAnimalType'
+        enum:
+        - cow
+        - goat
+      capacity:
+        type: integer
+      name:
+        maxLength: 100
+        type: string
+      price:
+        type: number
+      qurban_period_id:
+        type: integer
+      scheme_type:
+        allOf:
+        - $ref: '#/definitions/models.QurbanSchemeType'
+        enum:
+        - group
+        - individual
+      status:
+        allOf:
+        - $ref: '#/definitions/models.QurbanStatus'
+        enum:
+        - open
+        - closed
+    required:
+    - animal_type
+    - capacity
+    - name
+    - price
+    - qurban_period_id
+    - scheme_type
+    type: object
+  models.QurbanOfferingResponse:
+    properties:
+      animal_type:
+        $ref: '#/definitions/models.QurbanAnimalType'
+      capacity:
+        type: integer
+      confirmed_slots:
+        type: integer
+      created_at:
+        type: string
+      filled_slots:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        type: number
+      qurban_period_id:
+        type: integer
+      scheme_type:
+        $ref: '#/definitions/models.QurbanSchemeType'
+      status:
+        $ref: '#/definitions/models.QurbanStatus'
+      updated_at:
+        type: string
+    type: object
+  models.QurbanPeriodListWithPaginationResponse:
     properties:
       data:
         items:
@@ -31,6 +120,13 @@ definitions:
       message:
         example: Qurban Period created successfully
         type: string
+    type: object
+  models.QurbanPeriodOptionsResponse:
+    properties:
+      data:
+        items:
+          $ref: '#/definitions/models.QurbanPeriodResponse'
+        type: array
     type: object
   models.QurbanPeriodRequest:
     properties:
@@ -64,6 +160,22 @@ definitions:
       year:
         type: integer
     type: object
+  models.QurbanSchemeType:
+    enum:
+    - group
+    - individual
+    type: string
+    x-enum-varnames:
+    - Group
+    - Individual
+  models.QurbanStatus:
+    enum:
+    - open
+    - closed
+    type: string
+    x-enum-varnames:
+    - Open
+    - Closed
   models.SwaggerError:
     properties:
       code:
@@ -274,6 +386,162 @@ paths:
       summary: Check seeder status
       tags:
       - Seeder
+  /qurban-offerings:
+    get:
+      description: Returns a paginated list of qurban offerings. Optionally filter
+        by animal type and scheme type.
+      parameters:
+      - description: Filter by animal type (e.g. cow, goat)
+        in: query
+        name: animal_type
+        type: string
+      - description: Filter by scheme type (e.g. regular, premium)
+        in: query
+        name: scheme_type
+        type: string
+      - default: 1
+        description: Page number
+        in: query
+        name: page
+        type: integer
+      - default: 10
+        description: Items per page
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.QurbanOfferingListWithPaginationResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List qurban offerings
+      tags:
+      - Qurban Offerings
+    post:
+      consumes:
+      - application/json
+      description: Creates a new qurban offering for the authenticated mosque.
+      parameters:
+      - description: Qurban offering payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.QurbanOfferingRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.QurbanOfferingMutationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.SwaggerValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Create a qurban offering
+      tags:
+      - Qurban Offerings
+  /qurban-offerings/{id}:
+    delete:
+      description: Deletes a qurban offering by ID for the authenticated mosque.
+      parameters:
+      - description: Qurban Offering ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.QurbanOfferingMutationResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Delete a qurban offering
+      tags:
+      - Qurban Offerings
+    patch:
+      consumes:
+      - application/json
+      description: Updates an existing qurban offering by ID for the authenticated
+        mosque.
+      parameters:
+      - description: Qurban Offering ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Qurban offering payload
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/models.QurbanOfferingRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.QurbanOfferingMutationResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/models.SwaggerValidationErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: Update a qurban offering
+      tags:
+      - Qurban Offerings
   /qurban-periods:
     get:
       description: Returns a paginated list of qurban periods. Optionally filter by
@@ -299,7 +567,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.QurbanPeriodListResponse'
+            $ref: '#/definitions/models.QurbanPeriodListWithPaginationResponse'
         "401":
           description: Unauthorized
           schema:
@@ -423,6 +691,26 @@ paths:
       security:
       - BearerAuth: []
       summary: Update a qurban period
+      tags:
+      - Qurban Periods
+  /qurban-periods/options:
+    get:
+      description: Returns a list of qurban period options for dropdowns or selection
+        inputs.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.QurbanPeriodOptionsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/models.SwaggerErrorResponse'
+      security:
+      - BearerAuth: []
+      summary: List qurban period options
       tags:
       - Qurban Periods
 securityDefinitions:

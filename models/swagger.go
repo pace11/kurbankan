@@ -35,22 +35,3 @@ type SwaggerValidationError struct {
 type SwaggerValidationErrorResponse struct {
 	Error SwaggerValidationError `json:"error"`
 }
-
-// ==================== Qurban Period ====================
-
-// QurbanPeriodListResponse is the paginated list response for qurban periods.
-type QurbanPeriodListResponse struct {
-	Data []QurbanPeriodResponse `json:"data"`
-	Meta PaginatedMeta          `json:"meta"`
-}
-
-// QurbanPeriodDetailResponse is the single-item GET response.
-type QurbanPeriodDetailResponse struct {
-	Data QurbanPeriodResponse `json:"data"`
-}
-
-// QurbanPeriodMutationResponse is the create/update/delete response.
-type QurbanPeriodMutationResponse struct {
-	Message string               `json:"message" example:"Qurban Period created successfully"`
-	Data    QurbanPeriodResponse `json:"data"`
-}

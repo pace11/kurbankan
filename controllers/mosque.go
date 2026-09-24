@@ -27,7 +27,7 @@ func (ctl *MosqueController) GetMosques(c *gin.Context) {
 		"village_code":  c.Query("village_code"),
 	}
 
-	data, _, _, total, page, limit := ctl.Repo.Index(c, filters)
+	data, total, page, limit := ctl.Repo.ListWithPagination(c, filters)
 	utils.PaginatedResponse(c, data, total, page, limit)
 }
 
@@ -40,7 +40,7 @@ func (ctl *MosqueController) GetMosque(c *gin.Context) {
 		return
 	}
 
-	data, code, _, errors := ctl.Repo.Show(uint(id))
+	data, code, errors := ctl.Repo.Show(uint(id))
 	if utils.HandleRepoError(c, code, errors) {
 		return
 	}

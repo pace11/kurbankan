@@ -21,20 +21,7 @@ const (
 	Closed QurbanStatus = "closed"
 )
 
-type QurbanOfferingResponse struct {
-	ID             uint             `json:"id"`
-	QurbanPeriodID uint             `json:"qurban_period_id"`
-	AnimalType     QurbanAnimalType `json:"animal_type"`
-	SchemeType     QurbanSchemeType `json:"scheme_type"`
-	Name           string           `json:"name"`
-	Price          float64          `json:"price"`
-	Capacity       int              `json:"capacity"`
-	FilledSlots    int              `json:"filled_slots"`
-	ConfirmedSlots int              `json:"confirmed_slots"`
-	Status         QurbanStatus     `json:"status"`
-	CreatedAt      time.Time        `json:"created_at"`
-	UpdatedAt      time.Time        `json:"updated_at"`
-}
+// ========== Models ==========
 
 type QurbanOffering struct {
 	ID uint `json:"id" gorm:"primaryKey"`
@@ -61,4 +48,55 @@ type QurbanOffering struct {
 
 func (QurbanOffering) TableName() string {
 	return "qurban_offerings"
+}
+
+// ========== Responses (Response DTOs) ==========
+
+// QurbanOfferingResponse is the single-item response for qurban offerings.
+type QurbanOfferingResponse struct {
+	ID             uint             `json:"id"`
+	QurbanPeriodID uint             `json:"qurban_period_id"`
+	AnimalType     QurbanAnimalType `json:"animal_type"`
+	SchemeType     QurbanSchemeType `json:"scheme_type"`
+	Name           string           `json:"name"`
+	Price          float64          `json:"price"`
+	Capacity       int              `json:"capacity"`
+	FilledSlots    int              `json:"filled_slots"`
+	ConfirmedSlots int              `json:"confirmed_slots"`
+	Status         QurbanStatus     `json:"status"`
+	CreatedAt      time.Time        `json:"created_at"`
+	UpdatedAt      time.Time        `json:"updated_at"`
+}
+
+// ========== Payloads (Request DTOs) ==========
+
+type QurbanOfferingRequest struct {
+	QurbanPeriodID uint             `json:"qurban_period_id" binding:"required"`
+	AnimalType     QurbanAnimalType `json:"animal_type" binding:"required,oneof=cow goat"`
+	SchemeType     QurbanSchemeType `json:"scheme_type" binding:"required,oneof=group individual"`
+	Name           string           `json:"name" binding:"required,max=100"`
+	Price          float64          `json:"price" binding:"required,gt=0"`
+	Capacity       int              `json:"capacity" binding:"required,gt=0"`
+	Status         QurbanStatus     `json:"status" binding:"omitempty,oneof=open closed"`
+
+	// Not provided in payload
+	MosqueID uint `json:"-"`
+	ID       uint `json:"-"`
+}
+
+// QurbanOfferingListWithPaginationResponse is the paginated list response for qurban offerings.
+type QurbanOfferingListWithPaginationResponse struct {
+	Data []QurbanOfferingResponse `json:"data"`
+	Meta PaginatedMeta            `json:"meta"`
+}
+
+// QurbanOfferingDetailResponse is the single-item GET response.
+type QurbanOfferingDetailResponse struct {
+	Data QurbanOfferingResponse `json:"data"`
+}
+
+// QurbanOfferingMutationResponse is the create/update/delete response.
+type QurbanOfferingMutationResponse struct {
+	Message string                 `json:"message" example:"Qurban Offering created successfully"`
+	Data    QurbanOfferingResponse `json:"data"`
 }

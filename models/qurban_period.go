@@ -6,15 +6,7 @@ import (
 	"gorm.io/gorm"
 )
 
-type QurbanPeriodResponse struct {
-	ID          uint      `json:"id"`
-	Year        int       `json:"year"`
-	StartDate   time.Time `json:"start_date"`
-	EndDate     time.Time `json:"end_date"`
-	Description *string   `json:"description"`
-	CreatedAt   time.Time `json:"created_at"`
-	UpdatedAt   time.Time `json:"updated_at"`
-}
+// ========== Models ==========
 
 type QurbanPeriod struct {
 	ID uint `json:"id" gorm:"primaryKey"`
@@ -48,4 +40,39 @@ type QurbanPeriodRequest struct {
 	// Not provided in payload
 	MosqueID uint `json:"-"`
 	ID       uint `json:"-"`
+}
+
+// ========== Responses (Response DTOs) ==========
+
+// QurbanPeriodResponse is the single-item response for qurban periods.
+type QurbanPeriodResponse struct {
+	ID          uint      `json:"id"`
+	Year        int       `json:"year"`
+	StartDate   time.Time `json:"start_date"`
+	EndDate     time.Time `json:"end_date"`
+	Description *string   `json:"description"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
+}
+
+// QurbanPeriodOptionsResponse is the response for qurban period options.
+type QurbanPeriodOptionsResponse struct {
+	Data []QurbanPeriodResponse `json:"data"`
+}
+
+// QurbanPeriodListWithPaginationResponse is the paginated list response for qurban periods.
+type QurbanPeriodListWithPaginationResponse struct {
+	Data []QurbanPeriodResponse `json:"data"`
+	Meta PaginatedMeta          `json:"meta"`
+}
+
+// QurbanPeriodDetailResponse is the single-item GET response.
+type QurbanPeriodDetailResponse struct {
+	Data QurbanPeriodResponse `json:"data"`
+}
+
+// QurbanPeriodMutationResponse is the create/update/delete response.
+type QurbanPeriodMutationResponse struct {
+	Message string               `json:"message" example:"Qurban Period created successfully"`
+	Data    QurbanPeriodResponse `json:"data"`
 }
